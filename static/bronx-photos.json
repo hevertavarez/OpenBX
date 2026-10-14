@@ -1,0 +1,122 @@
+{
+ "note": "Photos from Wikimedia Commons, resized to 560px (JPEG q62). Credits shown in each map popup.",
+ "photos": [
+  {
+   "id": "yankee-stadium",
+   "title": "Yankee Stadium",
+   "lat": 40.8296,
+   "lng": -73.9262,
+   "src": "/static/img/bronx/yankee-stadium.jpg",
+   "width": 560,
+   "author": "Paulo JC Nogueira",
+   "license": "CC BY-SA 3.0",
+   "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0",
+   "sourceUrl": "https://commons.wikimedia.org/wiki/File:Yankee_Stadium_-_Bronx_-_New_York_-_USA_-_panoramio.jpg",
+   "height": 420
+  },
+  {
+   "id": "grand-concourse",
+   "title": "Grand Concourse",
+   "lat": 40.8335,
+   "lng": -73.919,
+   "src": "/static/img/bronx/grand-concourse.jpg",
+   "width": 560,
+   "author": "MMZach",
+   "license": "CC BY-SA 3.0",
+   "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0",
+   "sourceUrl": "https://commons.wikimedia.org/wiki/File:Grand_Concourse_2007-11.jpg",
+   "height": 315
+  },
+  {
+   "id": "nybg-conservatory",
+   "title": "New York Botanical Garden – Haupt Conservatory",
+   "lat": 40.86398,
+   "lng": -73.88232,
+   "src": "/static/img/bronx/nybg-conservatory.jpg",
+   "width": 560,
+   "author": "Acroterion",
+   "license": "CC BY-SA 4.0",
+   "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+   "sourceUrl": "https://commons.wikimedia.org/wiki/File:NYBG_Conservatory_NY1.jpg",
+   "height": 402
+  },
+  {
+   "id": "arthur-avenue-market",
+   "title": "Arthur Avenue Retail Market (Belmont)",
+   "lat": 40.8547,
+   "lng": -73.8883,
+   "src": "/static/img/bronx/arthur-avenue-market.jpg",
+   "width": 560,
+   "author": "Joe Mabel",
+   "license": "CC BY-SA 4.0",
+   "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+   "sourceUrl": "https://commons.wikimedia.org/wiki/File:Arthur_Avenue_Retail_Market_01.jpg",
+   "height": 373
+  },
+  {
+   "id": "orchard-beach",
+   "title": "Orchard Beach, Pelham Bay Park",
+   "lat": 40.8675,
+   "lng": -73.7935,
+   "src": "/static/img/bronx/orchard-beach.jpg",
+   "width": 560,
+   "author": "Bebo2good1",
+   "license": "CC BY-SA 4.0",
+   "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+   "sourceUrl": "https://commons.wikimedia.org/wiki/File:Orchard_Beach_-_Pelham_Bay_Park_-_The_Bronx.jpg",
+   "height": 314
+  },
+  {
+   "id": "city-island",
+   "title": "City Island",
+   "lat": 40.8468,
+   "lng": -73.7868,
+   "src": "/static/img/bronx/city-island.jpg",
+   "width": 560,
+   "author": "Doc Searls from Santa Barbara, USA",
+   "license": "CC BY 2.0",
+   "licenseUrl": "https://creativecommons.org/licenses/by/2.0",
+   "sourceUrl": "https://commons.wikimedia.org/wiki/File:City_Island_and_Hart_Island,_Bronx_NY.jpg",
+   "height": 233
+  },
+  {
+   "id": "bronx-library-center",
+   "title": "Bronx Library Center",
+   "lat": 40.86278,
+   "lng": -73.894,
+   "src": "/static/img/bronx/bronx-library-center.jpg",
+   "width": 560,
+   "author": "Julian A. Henderson",
+   "license": "CC BY-SA 3.0",
+   "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0",
+   "sourceUrl": "https://commons.wikimedia.org/wiki/File:Bronx_Library_Center.jpg",
+   "height": 366
+  },
+  {
+   "id": "bronx-river-nybg",
+   "title": "Bronx River in the New York Botanical Garden",
+   "lat": 40.8616,
+   "lng": -73.8748,
+   "src": "/static/img/bronx/bronx-river-nybg.jpg",
+   "width": 560,
+   "author": "Krzysztof Ziarnek, Kenraiz",
+   "license": "CC BY-SA 4.0",
+   "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+   "sourceUrl": "https://commons.wikimedia.org/wiki/File:Bronx_River_in_the_New_York_Botanical_Garden_kz01.jpg",
+   "height": 373
+  },
+  {
+   "id": "hall-of-fame-bcc",
+   "title": "Hall of Fame for Great Americans, Bronx Community College",
+   "lat": 40.858547,
+   "lng": -73.914092,
+   "src": "/static/img/bronx/hall-of-fame-bcc.jpg",
+   "width": 560,
+   "author": "Hugo L. González",
+   "license": "CC BY-SA 4.0",
+   "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+   "sourceUrl": "https://commons.wikimedia.org/wiki/File:Hall_of_Fame_for_Great_Americans_at_Bronx_Community_College_IMG_5319_HLG.jpg",
+   "height": 420
+  }
+ ]
+}

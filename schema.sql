@@ -1,6 +1,8 @@
 -- Open Bx database schema (PostgreSQL). Matches the live database.
--- Columns marked "added" were introduced when wiring the page to the database
--- (seed_from_page.py applies them idempotently with ADD COLUMN IF NOT EXISTS).
+-- Columns marked "added" were introduced when wiring the page to the database;
+-- columns marked "v2" were added with the locations / i18n / admin update.
+-- migrate.py applies all of them idempotently (ADD COLUMN IF NOT EXISTS), and
+-- every addition has a default, so older code keeps working.
 
 CREATE TABLE users (
     id                  VARCHAR(40)  PRIMARY KEY,
@@ -30,8 +32,19 @@ CREATE TABLE resources (
     ai_summary    JSONB,                                    -- {lang: "..."}
     services      JSONB,                                    -- {lang: ["...", ...]}
     open_now      BOOLEAN      NOT NULL DEFAULT TRUE,       -- added (page field openNow)
-    display_order INTEGER                                   -- added (page list order; NULL sorts last)
+    display_order INTEGER,                                  -- added (page list order; NULL sorts last)
+    source        VARCHAR(30)  NOT NULL DEFAULT 'curated',  -- v2: curated | nyc_open_data | admin | import
+    source_id     TEXT,                                     -- v2: record id in the source dataset (FacDB uid)
+    source_url    TEXT,                                     -- v2: dataset link shown as attribution
+    program_type  VARCHAR(40),                              -- v2: key in program_types.py (imported rows)
+    active        BOOLEAN      NOT NULL DEFAULT TRUE,       -- v2: FALSE = hidden from the public map
+    geo_status    VARCHAR(20),                              -- v2: verified | source | geocoded | manual
+    created_at    TIMESTAMPTZ  NOT NULL DEFAULT now(),      -- v2
+    updated_at    TIMESTAMPTZ  NOT NULL DEFAULT now(),      -- v2
+    updated_by    VARCHAR(40)  REFERENCES users(id) ON DELETE SET NULL  -- v2: last admin editor
 );
+CREATE UNIQUE INDEX resources_source_uid ON resources (source, source_id) WHERE source_id IS NOT NULL;
+CREATE INDEX resources_category ON resources (category);
 
 CREATE TABLE questions (
     id          VARCHAR(40) PRIMARY KEY,
@@ -40,11 +53,17 @@ CREATE TABLE questions (
     question    TEXT        NOT NULL,
     phone       VARCHAR(30),
     status      VARCHAR(20) NOT NULL DEFAULT 'pending'
-                CHECK (status IN ('pending', 'in_progress', 'answered')),
+                CHECK (status IN ('pending', 'in_progress', 'answered')),  -- pending is shown as "New"
     assigned_to VARCHAR(40) REFERENCES users(id) ON DELETE SET NULL,
     admin_notes TEXT        NOT NULL DEFAULT '',
-    user_id     VARCHAR     REFERENCES users(id) ON DELETE SET NULL  -- added (asker, NULL for guests)
+    user_id     VARCHAR     REFERENCES users(id) ON DELETE SET NULL, -- added (asker, NULL for guests)
+    topic       VARCHAR(20) NOT NULL DEFAULT 'resource',               -- v2: resource | app
+    resource_id VARCHAR(40),                                           -- v2: location the question was asked from
+    reply       TEXT        NOT NULL DEFAULT '',                       -- v2: shown to a logged-in asker
+    replied_at  TIMESTAMPTZ,                                           -- v2
+    replied_by  VARCHAR(40) REFERENCES users(id) ON DELETE SET NULL    -- v2
 );
+CREATE INDEX questions_user ON questions (user_id);
 
 CREATE TABLE search_logs (
     id               VARCHAR(40) PRIMARY KEY,

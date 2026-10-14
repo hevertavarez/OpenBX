@@ -1,5 +1,5 @@
 <!DOCTYPE html> 
-<html lang="en">
+<html lang="en" dir="ltr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -1012,16 +1012,78 @@
             border-radius: var(--radius-pill);
             font-weight: 800;
         }
+
+        /* ================================================================
+           [ADDED] Styles for new pieces only. Everything below is scoped to
+           new elements (obx-* classes), the map (#leafletMap) or the admin
+           panel, so the existing design above is unchanged.
+           ================================================================ */
+
+        /* [MAP THEME] light basemap: OSM tiles softened with a filter on the
+           map's own tile pane (toggled by MAP_THEME_CONFIG.enabled in the script) */
+        #leafletMap { direction: ltr; }
+        #leafletMap.obx-light .leaflet-tile-pane { filter: saturate(.35) brightness(1.06) contrast(.9); }
+        #leafletMap.obx-light { background: #f2f4f3; }
+        #leafletMap .obx-photo-pin {
+            display: flex; align-items: center; justify-content: center;
+            background: #ffffff; border: 2px solid var(--primary-accent); border-radius: 8px;
+            font-size: 13px; box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+        }
+        #leafletMap .obx-photo-popup .leaflet-popup-content { margin: 10px; width: 260px; }
+        #leafletMap .obx-photo-popup img {
+            display: block; width: 100%; height: auto; border-radius: 8px;
+            background: var(--bg-blue-light); aspect-ratio: 560 / 373;
+        }
+        #leafletMap .obx-photo-title { font-size: 12px; font-weight: 800; margin-bottom: 6px; }
+        #leafletMap .obx-photo-credit { font-size: 10px; color: var(--text-muted); margin-top: 4px; line-height: 1.35; }
+        #leafletMap .marker-cluster-small, #leafletMap .marker-cluster-medium, #leafletMap .marker-cluster-large { background-color: rgba(178, 228, 203, 0.65); }
+        #leafletMap .marker-cluster-small div, #leafletMap .marker-cluster-medium div, #leafletMap .marker-cluster-large div {
+            background-color: rgba(31, 130, 87, 0.85); color: #ffffff; font-weight: 800;
+        }
+
+        /* small helpers for new UI */
+        .obx-muted-note { font-size: 11px; color: var(--text-muted); line-height: 1.4; }
+        .obx-link { color: var(--primary-accent); font-weight: 700; }
+        .obx-hidden { display: none !important; }
+        .obx-show-more { margin: 20px auto 0 auto; display: block; }
+
+        /* "My questions" list in the question modal */
+        .obx-myq { border: 1px solid var(--wireframe-border); border-radius: var(--radius-md); padding: 10px; font-size: 12px; display: flex; flex-direction: column; gap: 6px; }
+        .obx-myq-reply { background: var(--bg-green-light); border: 1px solid var(--border-green); border-radius: var(--radius-sm); padding: 8px; }
+
+        /* Admin panel */
+        #adminDashboardModal .wf-modal { max-width: 960px; width: 95%; }
+        .obx-tabs { display: flex; gap: 6px; flex-wrap: wrap; }
+        .obx-tab { background: var(--bg-blue-light); border: 1px solid var(--wireframe-border); color: var(--text-muted); padding: 7px 14px; font-size: 12px; font-weight: 700; border-radius: var(--radius-pill); cursor: pointer; }
+        .obx-tab.active { background: var(--primary-accent); color: #ffffff; border-color: var(--primary-accent); }
+        .obx-toolbar { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+        .obx-toolbar input, .obx-toolbar select { border: 1.5px solid var(--wireframe-border); padding: 7px 10px; font-size: 12px; border-radius: var(--radius-md); background: var(--bg-card); }
+        .obx-badge { display: inline-block; font-size: 10px; font-weight: 800; padding: 2px 8px; border-radius: var(--radius-pill); background: var(--bg-blue-light); border: 1px solid var(--wireframe-border); white-space: nowrap; }
+        .obx-badge.app { background: #fff4e0; border-color: #f1c27d; }
+        .admin-table textarea, .admin-table select { width: 100%; font-size: 11px; border: 1px solid var(--wireframe-border); border-radius: 6px; padding: 4px; font-family: var(--font-sans); }
+        .obx-form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .obx-form-grid .wide { grid-column: 1 / -1; }
+        @media (max-width: 640px) { .obx-form-grid { grid-template-columns: 1fr; } }
+        .obx-form-grid details { border: 1px dashed var(--wireframe-border); border-radius: var(--radius-md); padding: 8px; font-size: 12px; }
+        .obx-form-grid details .wf-form-group { margin-top: 6px; }
+        .obx-days { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 6px; }
+        .obx-scroll { max-height: 52vh; overflow: auto; }
     </style>
+    <!-- [MAP] Leaflet.markercluster groups nearby pins so hundreds of locations stay readable -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css" />
+    <script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
 </head>
 <body>
+    <!-- [I18N] Every user-facing string carries a data-i18n key; the text here is the English
+         fallback. Translations live in static/i18n/<lang>.json. -->
 
     <!-- 0. SPLASH INTRO SCREEN WITH VECTOR LOGO -->
     <div class="splash-overlay" id="splashScreen">
         <div class="splash-card">
-            <div class="splash-logo-container">
+            <div class="splash-logo-container" role="img" aria-label="Open Bx logo" data-i18n-aria-label="meta.logoAlt">
                 <!-- Custom Open Bx SVG Logo -->
-                <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
                     <rect width="100" height="100" rx="20" fill="#e8f7f0"/>
                     <path d="M50 15C33.4315 15 20 28.4315 20 45C20 63.5 42 82.5 48.2 87.7C49.2 88.5 50.8 88.5 51.8 87.7C58 82.5 80 63.5 80 45C80 28.4315 66.5685 15 50 15Z" fill="#1f8257"/>
                     <circle cx="50" cy="42" r="16" fill="#ffffff"/>
@@ -1029,27 +1091,27 @@
                 </svg>
             </div>
             <div class="splash-title">Open Bx</div>
-            <div class="splash-slogan">"For the Bronx, In the Bronx"</div>
-            <p class="splash-desc">
+            <div class="splash-slogan" data-i18n="header.slogan">"For the Bronx, In the Bronx"</div>
+            <p class="splash-desc" data-i18n="splash.desc">
                 Welcome to Open Bx — an AI-powered accessibility platform connecting Bronx families to free, accessible food pantries, healthcare, recovery counseling, job programs, and education.
             </p>
-            <button class="btn-splash-continue" onclick="dismissSplash()">Click to Continue</button>
+            <button class="btn-splash-continue" onclick="dismissSplash()" data-i18n="splash.continue">Click to Continue</button>
         </div>
     </div>
 
     <!-- 1. CONTINUOUS SLIDING BANNER -->
-    <div class="wf-badge-container">
+    <div class="wf-badge-container" dir="ltr">
         <div class="wf-badge-track">
-            <span class="wf-badge-text">Bronx Community Accessibility &nbsp;•&nbsp; Free Resources & Opportunity Finder &nbsp;•&nbsp; Bronx Community Accessibility &nbsp;•&nbsp; Free Resources & Opportunity Finder</span>
-            <span class="wf-badge-text">Bronx Community Accessibility &nbsp;•&nbsp; Free Resources & Opportunity Finder &nbsp;•&nbsp; Bronx Community Accessibility &nbsp;•&nbsp; Free Resources & Opportunity Finder</span>
+            <span class="wf-badge-text" data-i18n="banner.text">Bronx Community Accessibility &nbsp;•&nbsp; Free Resources & Opportunity Finder &nbsp;•&nbsp; Bronx Community Accessibility &nbsp;•&nbsp; Free Resources & Opportunity Finder</span>
+            <span class="wf-badge-text" data-i18n="banner.text">Bronx Community Accessibility &nbsp;•&nbsp; Free Resources & Opportunity Finder &nbsp;•&nbsp; Bronx Community Accessibility &nbsp;•&nbsp; Free Resources & Opportunity Finder</span>
         </div>
     </div>
 
     <!-- Header with Embedded Custom Open Bx Logo -->
     <header>
         <div class="brand-container">
-            <div class="logo-box" title="Open Bx Bronx Community Logo">
-                <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <div class="logo-box" title="Open Bx Bronx Community Logo" data-i18n-title="meta.logoAlt" role="img" aria-label="Open Bx Bronx Community Logo" data-i18n-aria-label="meta.logoAlt">
+                <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
                     <rect width="100" height="100" rx="20" fill="#e8f7f0"/>
                     <path d="M50 15C33.4315 15 20 28.4315 20 45C20 63.5 42 82.5 48.2 87.7C49.2 88.5 50.8 88.5 51.8 87.7C58 82.5 80 63.5 80 45C80 28.4315 66.5685 15 50 15Z" fill="#1f8257"/>
                     <circle cx="50" cy="42" r="16" fill="#ffffff"/>
@@ -1059,21 +1121,22 @@
             <div>
                 <div class="app-title">
                     Open Bx
-                    <span style="font-size: 11px; background: var(--bg-blue-light); color: var(--primary-accent); padding: 2px 8px; border-radius: var(--radius-pill); border: 1px solid var(--wireframe-border);">📍 Bronx, NY</span>
+                    <span style="font-size: 11px; background: var(--bg-blue-light); color: var(--primary-accent); padding: 2px 8px; border-radius: var(--radius-pill); border: 1px solid var(--wireframe-border);" data-i18n="header.bronxBadge">📍 Bronx, NY</span>
                 </div>
-                <div class="app-slogan" id="txtSlogan">"For the Bronx, In the Bronx"</div>
-                <div class="app-subtitle" id="txtSubtitle">Community Resource & Opportunity Finder</div>
+                <div class="app-slogan" id="txtSlogan" data-i18n="header.slogan">"For the Bronx, In the Bronx"</div>
+                <div class="app-subtitle" id="txtSubtitle" data-i18n="header.subtitle">Community Resource & Opportunity Finder</div>
             </div>
         </div>
 
         <div class="header-controls">
             <div class="wf-nav">
-                <button class="wf-nav-btn active" id="navMap" onclick="switchScreen('map')">Map View</button>
-                <button class="wf-nav-btn" id="navList" onclick="switchScreen('list')">List View</button>
-                <button class="wf-nav-btn" id="navSaved" onclick="switchScreen('saved')">Saved (<span id="savedCount">1</span>)</button>
+                <button class="wf-nav-btn active" id="navMap" onclick="switchScreen('map')" data-i18n="header.navMap">Map View</button>
+                <button class="wf-nav-btn" id="navList" onclick="switchScreen('list')" data-i18n="header.navList">List View</button>
+                <button class="wf-nav-btn" id="navSaved" onclick="switchScreen('saved')"><span data-i18n="header.navSaved">Saved</span> (<span id="savedCount">1</span>)</button>
             </div>
 
-            <select class="lang-select" id="languageSelect" onchange="changeLanguage(this.value)">
+            <!-- Language names are written in their own language on purpose -->
+            <select class="lang-select" id="languageSelect" onchange="changeLanguage(this.value)" aria-label="Language" data-i18n-aria-label="header.languageLabel">
                 <option value="en">🌐 English (US)</option>
                 <option value="es">🌐 Español (Spanish)</option>
                 <option value="vi">🌐 Tiếng Việt (Vietnamese)</option>
@@ -1081,14 +1144,15 @@
                 <option value="ar">🌐 العربية (Arabic)</option>
             </select>
 
-            <button class="ask-ai-btn" id="btnSubmitQuestion" onclick="openModal('questionModal')">
+            <button class="ask-ai-btn" id="btnSubmitQuestion" onclick="openQuestionModal()" data-i18n="header.askBtn">
                 ❓ Ask Question
             </button>
 
             <!-- [DB] account login so saved resources follow the user -->
-            <button class="admin-btn" id="btnAccount" onclick="openAccountModal()">👤 Log In</button>
+            <button class="admin-btn" id="btnAccount" onclick="openAccountModal()" data-i18n="header.login">👤 Log In</button>
 
-            <button class="admin-btn" onclick="openAdminModal()">🔒 Admin Access</button>
+            <!-- [ADMIN] opens the admin panel for logged-in admins (no shared password) -->
+            <button class="admin-btn" id="btnAdminAccess" onclick="openAdminModal()" data-i18n="header.adminAccess">🔒 Admin Access</button>
         </div>
     </header>
 
@@ -1096,24 +1160,24 @@
     <div class="radar-bar">
         <div class="radar-display">
             <div class="radar-sweep"></div>
-            <span id="locationText">Radar Active: Center calculated near Fordham Road, Bronx NY</span>
+            <span id="locationText" data-i18n="radar.default">Radar Active: Center calculated near Fordham Road, Bronx NY</span>
         </div>
-        <button onclick="requestUserLocation()" id="btnDetectGPS">🎯 Detect Device GPS</button>
+        <button onclick="requestUserLocation()" id="btnDetectGPS" data-i18n="radar.detect">🎯 Detect Device GPS</button>
     </div>
 
     <!-- Hero Search -->
     <section class="search-section">
         <div class="ai-input-box">
-            <input type="text" id="aiQueryInput" class="ai-input" placeholder="Ask AI: e.g. 'POTS food pantry Fordham Road', 'Samaritan Daytop rehab'">
-            <button class="ai-submit-btn" id="btnAISearch" onclick="processAIQuery()">[ AI Search ]</button>
+            <input type="text" id="aiQueryInput" class="ai-input" placeholder="Ask AI: e.g. 'POTS food pantry Fordham Road', 'Samaritan Daytop rehab'" data-i18n-placeholder="search.placeholder" aria-label="Search" data-i18n-aria-label="search.label" onkeydown="if (event.key === 'Enter') processAIQuery()">
+            <button class="ai-submit-btn" id="btnAISearch" onclick="processAIQuery()" data-i18n="search.button">[ AI Search ]</button>
         </div>
         <div class="sample-queries">
-            <span class="sample-tag-label" id="lblShortcuts">Bronx AI Shortcuts:</span>
-            <span class="sample-chip" onclick="applySampleQuery('POTS Food Pantry Webster Ave')">"🍞 POTS Pantry"</span>
-            <span class="sample-chip" onclick="applySampleQuery('Samaritan Daytop Village Rehab Grand Concourse')">"🌱 Samaritan Rehab"</span>
-            <span class="sample-chip" onclick="applySampleQuery('BronxWorks Employment Center Mott Haven')">"💼 BronxWorks Job Center"</span>
-            <span class="sample-chip" onclick="applySampleQuery('NYC Health Lincoln Hospital South Bronx')">"🩺 Lincoln Hospital"</span>
-            <span class="sample-chip" onclick="applySampleQuery('Hostos Community College Education')">"📚 Hostos College"</span>
+            <span class="sample-tag-label" id="lblShortcuts" data-i18n="search.shortcuts">Bronx AI Shortcuts:</span>
+            <span class="sample-chip" onclick="applySampleQuery('POTS Food Pantry Webster Ave')" data-i18n="search.chipPots">"🍞 POTS Pantry"</span>
+            <span class="sample-chip" onclick="applySampleQuery('Samaritan Daytop Village Rehab Grand Concourse')" data-i18n="search.chipSamaritan">"🌱 Samaritan Rehab"</span>
+            <span class="sample-chip" onclick="applySampleQuery('BronxWorks Employment Center Mott Haven')" data-i18n="search.chipBronxWorks">"💼 BronxWorks Job Center"</span>
+            <span class="sample-chip" onclick="applySampleQuery('NYC Health Lincoln Hospital South Bronx')" data-i18n="search.chipLincoln">"🩺 Lincoln Hospital"</span>
+            <span class="sample-chip" onclick="applySampleQuery('Hostos Community College Education')" data-i18n="search.chipHostos">"📚 Hostos College"</span>
         </div>
     </section>
 
@@ -1121,40 +1185,40 @@
     <main class="workspace" id="screenMapWorkspace">
         <aside class="filters-panel">
             <div class="panel-title">
-                <span id="lblFilterTitle">Filter Resources</span>
-                <button class="reset-btn" id="btnReset" onclick="resetFilters()">Reset All</button>
+                <span id="lblFilterTitle" data-i18n="filters.title">Filter Resources</span>
+                <button class="reset-btn" id="btnReset" onclick="resetFilters()" data-i18n="filters.reset">Reset All</button>
             </div>
 
             <div class="filter-group">
-                <span class="filter-group-label" id="lblCategory">Resource Category</span>
+                <span class="filter-group-label" id="lblCategory" data-i18n="filters.category">Resource Category</span>
                 <div class="cat-grid">
-                    <button class="cat-btn active" onclick="toggleCategory(this, 'all')"><span>🌐</span> <span id="catLabel_all">All Needs</span></button>
-                    <button class="cat-btn" onclick="toggleCategory(this, 'food')"><span>🍞</span> <span id="catLabel_food">Food Pantry</span></button>
-                    <button class="cat-btn" onclick="toggleCategory(this, 'health')"><span>🩺</span> <span id="catLabel_health">Healthcare</span></button>
-                    <button class="cat-btn" onclick="toggleCategory(this, 'rehab')"><span>🌱</span> <span id="catLabel_rehab">Rehab/Care</span></button>
-                    <button class="cat-btn" onclick="toggleCategory(this, 'education')"><span>📚</span> <span id="catLabel_education">Education</span></button>
-                    <button class="cat-btn" onclick="toggleCategory(this, 'jobs')"><span>💼</span> <span id="catLabel_jobs">Employment</span></button>
-                    <button class="cat-btn" onclick="toggleCategory(this, 'clothing')"><span>👕</span> <span id="catLabel_clothing">Clothing</span></button>
-                    <button class="cat-btn" onclick="toggleCategory(this, 'community')"><span>🤝</span> <span id="catLabel_community">Community</span></button>
+                    <button class="cat-btn active" onclick="toggleCategory(this, 'all')"><span>🌐</span> <span id="catLabel_all" data-i18n="categories.all">All Needs</span></button>
+                    <button class="cat-btn" onclick="toggleCategory(this, 'food')"><span>🍞</span> <span id="catLabel_food" data-i18n="categories.food">Food Pantry</span></button>
+                    <button class="cat-btn" onclick="toggleCategory(this, 'health')"><span>🩺</span> <span id="catLabel_health" data-i18n="categories.health">Healthcare</span></button>
+                    <button class="cat-btn" onclick="toggleCategory(this, 'rehab')"><span>🌱</span> <span id="catLabel_rehab" data-i18n="categories.rehab">Rehab/Care</span></button>
+                    <button class="cat-btn" onclick="toggleCategory(this, 'education')"><span>📚</span> <span id="catLabel_education" data-i18n="categories.education">Education</span></button>
+                    <button class="cat-btn" onclick="toggleCategory(this, 'jobs')"><span>💼</span> <span id="catLabel_jobs" data-i18n="categories.jobs">Employment</span></button>
+                    <button class="cat-btn" onclick="toggleCategory(this, 'clothing')"><span>👕</span> <span id="catLabel_clothing" data-i18n="categories.clothing">Clothing</span></button>
+                    <button class="cat-btn" onclick="toggleCategory(this, 'community')"><span>🤝</span> <span id="catLabel_community" data-i18n="categories.community">Community</span></button>
                 </div>
             </div>
 
             <div class="filter-group">
-                <span class="filter-group-label" id="lblRequirements">Requirements & Access</span>
+                <span class="filter-group-label" id="lblRequirements" data-i18n="filters.reqs">Requirements & Access</span>
                 <div class="checkbox-list">
-                    <label class="wf-checkbox"><input type="checkbox" id="chkNoID" onchange="filterLocations()"><span id="lblNoID">No Photo ID Required</span></label>
-                    <label class="wf-checkbox"><input type="checkbox" id="chkNoProofIncome" onchange="filterLocations()"><span id="lblNoIncome">No Proof of Income Needed</span></label>
-                    <label class="wf-checkbox"><input type="checkbox" id="chkWalkIn" onchange="filterLocations()"><span id="lblWalkIn">Walk-ins Allowed</span></label>
-                    <label class="wf-checkbox"><input type="checkbox" id="chkSpanish" onchange="filterLocations()"><span id="lblSpanish">Multilingual Staff On-Site</span></label>
-                    <label class="wf-checkbox"><input type="checkbox" id="chkTransit" onchange="filterLocations()"><span id="lblTransit">Near Public Transit</span></label>
+                    <label class="wf-checkbox"><input type="checkbox" id="chkNoID" onchange="filterLocations()"><span id="lblNoID" data-i18n="filters.noID">No Photo ID Required</span></label>
+                    <label class="wf-checkbox"><input type="checkbox" id="chkNoProofIncome" onchange="filterLocations()"><span id="lblNoIncome" data-i18n="filters.noIncome">No Proof of Income Needed</span></label>
+                    <label class="wf-checkbox"><input type="checkbox" id="chkWalkIn" onchange="filterLocations()"><span id="lblWalkIn" data-i18n="filters.walkIn">Walk-ins Allowed</span></label>
+                    <label class="wf-checkbox"><input type="checkbox" id="chkSpanish" onchange="filterLocations()"><span id="lblSpanish" data-i18n="filters.spanish">Multilingual Staff On-Site</span></label>
+                    <label class="wf-checkbox"><input type="checkbox" id="chkTransit" onchange="filterLocations()"><span id="lblTransit" data-i18n="filters.transit">Near Public Transit</span></label>
                 </div>
             </div>
 
             <div class="filter-group">
-                <span class="filter-group-label" id="lblDistance">Maximum Distance</span>
+                <span class="filter-group-label" id="lblDistance" data-i18n="filters.distance">Maximum Distance</span>
                 <div class="range-slider-container">
-                    <input type="range" id="distanceRange" min="1" max="25" value="10" oninput="updateDistanceLabel(this.value)">
-                    <div class="range-val" id="distanceVal">10 miles radius</div>
+                    <input type="range" id="distanceRange" min="1" max="25" value="10" oninput="updateDistanceLabel(this.value)" aria-label="Maximum Distance" data-i18n-aria-label="filters.distance">
+                    <div class="range-val" id="distanceVal" data-i18n="filters.milesRadius">10 miles radius</div>
                 </div>
             </div>
         </aside>
@@ -1162,10 +1226,10 @@
         <section class="map-container">
             <div class="scanner-badge">
                 <div class="scan-dot"></div>
-                <span id="lblAIScanner">AI Auto-Scanner Active • Hours & Location Verified</span>
+                <span id="lblAIScanner" data-i18n="map.scanner">AI Auto-Scanner Active • Hours & Location Verified</span>
             </div>
 
-            <div id="leafletMap"></div>
+            <div id="leafletMap" role="region" aria-label="Map of Bronx resources" data-i18n-aria-label="map.label"></div>
         </section>
 
         <aside class="detail-panel" id="detailPanel"></aside>
@@ -1173,15 +1237,17 @@
 
     <!-- SCREEN 2: LIST VIEW -->
     <section class="screen-view" id="screenListView">
-        <h2 style="font-size: 20px; font-weight: 800;" id="lblListHeader">📋 All Bronx Verified Resources</h2>
-        <p style="font-size: 13px; color: var(--text-muted);" id="lblListSub">Browse all available food, medical, recovery, and job programs in card format.</p>
+        <h2 style="font-size: 20px; font-weight: 800;" id="lblListHeader" data-i18n="list.header">📋 All Bronx Verified Resources</h2>
+        <p style="font-size: 13px; color: var(--text-muted);" id="lblListSub" data-i18n="list.sub">Browse all available food, medical, recovery, and job programs in card format.</p>
         <div class="list-grid" id="fullCardListContainer"></div>
+        <!-- [PERF] cards render in pages of 24 -->
+        <button class="btn-secondary-wf obx-show-more obx-hidden" id="btnShowMore" onclick="showMoreCards()"></button>
     </section>
 
     <!-- SCREEN 3: SAVED VIEW -->
     <section class="screen-view" id="screenSavedView">
-        <h2 style="font-size: 20px; font-weight: 800;" id="lblSavedHeader">⭐ Saved Centers & Programs</h2>
-        <p style="font-size: 13px; color: var(--text-muted);" id="lblSavedSub">Access bookmarked Bronx centers offline or share them with family.</p>
+        <h2 style="font-size: 20px; font-weight: 800;" id="lblSavedHeader" data-i18n="saved.header">⭐ Saved Centers & Programs</h2>
+        <p style="font-size: 13px; color: var(--text-muted);" id="lblSavedSub" data-i18n="saved.sub">Access bookmarked Bronx centers offline or share them with family.</p>
         <div class="list-grid" id="savedCardListContainer"></div>
     </section>
 
@@ -1189,16 +1255,26 @@
     <div class="modal-overlay" id="questionModal">
         <div class="wf-modal">
             <div class="modal-header">
-                <div class="modal-title" id="lblModalTitle">[ Ask A Question / Receive SMS Response ]</div>
-                <button class="close-modal" onclick="closeModal('questionModal')">✕</button>
+                <div class="modal-title" id="lblModalTitle" data-i18n="question.title">[ Ask A Question / Receive SMS Response ]</div>
+                <button class="close-modal" onclick="closeModal('questionModal')" aria-label="Close" data-i18n-aria-label="common.close">✕</button>
             </div>
 
-            <p style="font-size: 13px; line-height: 1.45; color: var(--text-muted);" id="lblModalDesc">
+            <p style="font-size: 13px; line-height: 1.45; color: var(--text-muted);" id="lblModalDesc" data-i18n="question.desc">
                 Need extra guidance? Submit your question and optional phone number. Our AI or Bronx counselors will text you an answer!
             </p>
 
+            <!-- [QUESTIONS] what the question is about -->
             <div class="wf-form-group">
-                <label id="lblFormLang">Preferred Language</label>
+                <label for="questionTopic" data-i18n="question.topic">What is your question about?</label>
+                <select id="questionTopic">
+                    <option value="resource" data-i18n="question.topicResource">Finding help or a resource</option>
+                    <option value="app" data-i18n="question.topicApp">The Open Bx app (questions, problems, ideas)</option>
+                </select>
+            </div>
+            <div class="obx-muted-note obx-hidden" id="questionContext"></div>
+
+            <div class="wf-form-group">
+                <label id="lblFormLang" for="questionLang" data-i18n="question.langLabel">Preferred Language</label>
                 <select id="questionLang">
                     <option value="English">English</option>
                     <option value="Spanish">Español</option>
@@ -1209,78 +1285,175 @@
             </div>
 
             <div class="wf-form-group">
-                <label id="lblFormQuestion">Your Question or Resource Request</label>
-                <textarea id="questionTextInput" rows="4" placeholder="Type what you need help with in plain text..." style="resize: vertical;"></textarea>
+                <label id="lblFormQuestion" for="questionTextInput" data-i18n="question.questionLabel">Your Question or Resource Request</label>
+                <textarea id="questionTextInput" rows="4" placeholder="Type what you need help with in plain text..." data-i18n-placeholder="question.placeholder" style="resize: vertical;"></textarea>
             </div>
 
             <div class="wf-form-group">
-                <label id="lblFormPhone">Mobile Phone Number (To receive text response)</label>
-                <input type="text" id="questionPhoneInput" placeholder="(718) 000-0000">
+                <label id="lblFormPhone" for="questionPhoneInput" data-i18n="question.phoneLabel">Mobile Phone Number (To receive text response)</label>
+                <input type="text" id="questionPhoneInput" placeholder="(718) 000-0000" data-i18n-placeholder="question.phonePlaceholder">
             </div>
 
             <div style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 10px;">
-                <button class="btn-secondary-wf" onclick="closeModal('questionModal')">Cancel</button>
-                <button class="btn-primary-wf" onclick="submitUserQuestion()">Submit Request</button>
+                <button class="btn-secondary-wf" onclick="closeModal('questionModal')" data-i18n="common.cancel">Cancel</button>
+                <button class="btn-primary-wf" onclick="submitUserQuestion()" data-i18n="question.submit">Submit Request</button>
+            </div>
+
+            <!-- [QUESTIONS] logged-in users see their earlier questions and any reply -->
+            <div id="myQuestionsBox" class="obx-hidden" style="display: flex; flex-direction: column; gap: 8px;">
+                <div class="info-block-title" data-i18n="question.myQuestions">Your questions</div>
+                <div id="myQuestionsList" style="display: flex; flex-direction: column; gap: 8px;"></div>
             </div>
         </div>
     </div>
 
-    <!-- Modal 2: Admin Password Portal -->
-    <div class="modal-overlay" id="adminAuthModal">
+    <!-- Modal 3: Admin Panel (questions inbox, locations, import). [ADMIN] Opened only for
+         logged-in staff; every request is re-checked on the server. -->
+    <div class="modal-overlay" id="adminDashboardModal">
         <div class="wf-modal">
             <div class="modal-header">
-                <div class="modal-title">🔒 Admin Access Portal</div>
-                <button class="close-modal" onclick="closeModal('adminAuthModal')">✕</button>
+                <div class="modal-title" id="adminPanelTitle" data-i18n="admin.title">📋 Admin Panel</div>
+                <button class="close-modal" onclick="closeModal('adminDashboardModal')" aria-label="Close" data-i18n-aria-label="common.close">✕</button>
             </div>
 
-            <!-- [DB] staff email (admin or counselor account) -->
-            <div class="wf-form-group">
-                <label>Staff Email</label>
-                <input type="email" id="adminEmailInput" placeholder="admin@openbx.org">
+            <div class="obx-tabs" id="adminTabs">
+                <button class="obx-tab active" data-tab="inbox" onclick="switchAdminTab('inbox')" data-i18n="admin.tabInbox">Questions Inbox</button>
+                <button class="obx-tab" data-tab="locations" data-admin-only onclick="switchAdminTab('locations')" data-i18n="admin.tabLocations">Locations</button>
+                <button class="obx-tab" data-tab="import" data-admin-only onclick="switchAdminTab('import')" data-i18n="admin.tabImport">Bulk Import</button>
             </div>
 
-            <div class="wf-form-group">
-                <label>Enter Admin Password</label>
-                <input type="password" id="adminPasswordInput" placeholder="Password required...">
+            <!-- Tab: questions inbox -->
+            <div id="adminTab_inbox" style="display: flex; flex-direction: column; gap: 10px;">
+                <p style="font-size: 12px; color: var(--text-muted);" id="adminInboxDesc" data-i18n="admin.inboxDesc">
+                    Questions people sent from the app. Reply here: logged-in askers see your reply under "Ask Question".
+                </p>
+                <div class="obx-toolbar">
+                    <select id="inboxTopic" onchange="loadInbox()" data-admin-only aria-label="Topic" data-i18n-aria-label="admin.filterTopic">
+                        <option value="all" data-i18n="admin.topicAll">All topics</option>
+                        <option value="app" data-i18n="admin.topicApp">About the app</option>
+                        <option value="resource" data-i18n="admin.topicResource">Finding help</option>
+                    </select>
+                    <select id="inboxStatus" onchange="loadInbox()" aria-label="Status" data-i18n-aria-label="admin.filterStatus">
+                        <option value="open" data-i18n="admin.statusOpen">Not answered yet</option>
+                        <option value="all" data-i18n="admin.statusAll">All statuses</option>
+                        <option value="answered" data-i18n="status.answered">Answered</option>
+                    </select>
+                </div>
+                <div id="adminTableContainer" class="obx-scroll">
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th data-i18n="admin.colTime">Time</th>
+                                <th data-i18n="admin.colTopic">Topic</th>
+                                <th data-i18n="admin.colLanguage">Language</th>
+                                <th data-i18n="admin.colQuestion">Question</th>
+                                <th data-i18n="admin.colPhone">Phone #</th>
+                                <th data-i18n="admin.colStatus">Status / Reply</th>
+                            </tr>
+                        </thead>
+                        <tbody id="adminTableBody"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Tab: locations (admins only) -->
+            <div id="adminTab_locations" class="obx-hidden" style="flex-direction: column; gap: 10px;">
+                <div class="obx-toolbar">
+                    <input type="search" id="locSearch" placeholder="Search name, address or id" data-i18n-placeholder="admin.locSearch" oninput="debouncedLoadLocations()" aria-label="Search" data-i18n-aria-label="search.label">
+                    <select id="locCategory" onchange="loadAdminLocations(1)" aria-label="Category" data-i18n-aria-label="filters.category">
+                        <option value="" data-i18n="categories.all">All Needs</option>
+                        <option value="food" data-i18n="categories.food">Food Pantry</option>
+                        <option value="health" data-i18n="categories.health">Healthcare</option>
+                        <option value="rehab" data-i18n="categories.rehab">Rehab/Care</option>
+                        <option value="education" data-i18n="categories.education">Education</option>
+                        <option value="jobs" data-i18n="categories.jobs">Employment</option>
+                        <option value="clothing" data-i18n="categories.clothing">Clothing</option>
+                        <option value="community" data-i18n="categories.community">Community</option>
+                    </select>
+                    <label class="wf-checkbox"><input type="checkbox" id="locShowHidden" onchange="loadAdminLocations(1)"><span data-i18n="admin.showHidden">Show hidden</span></label>
+                    <button class="btn-primary-wf" onclick="openLocationForm(null)" data-i18n="admin.addLocation">+ Add location</button>
+                </div>
+                <div class="obx-scroll" id="locListBox">
+                    <table class="admin-table">
+                        <thead><tr>
+                            <th data-i18n="admin.colName">Name</th>
+                            <th data-i18n="filters.category">Resource Category</th>
+                            <th data-i18n="admin.colAddress">Address</th>
+                            <th data-i18n="admin.colSource">Source</th>
+                            <th></th>
+                        </tr></thead>
+                        <tbody id="locTableBody"></tbody>
+                    </table>
+                </div>
+                <div class="obx-toolbar" id="locPager">
+                    <button class="btn-secondary-wf" onclick="loadAdminLocations(adminLocPage - 1)" id="locPrev" data-i18n="admin.prev">‹ Previous</button>
+                    <span class="obx-muted-note" id="locPageInfo"></span>
+                    <button class="btn-secondary-wf" onclick="loadAdminLocations(adminLocPage + 1)" id="locNext" data-i18n="admin.next">Next ›</button>
+                </div>
+
+                <!-- add / edit form -->
+                <div id="locFormBox" class="obx-hidden" style="flex-direction: column; gap: 10px; border-top: 2px dashed var(--border-green); padding-top: 12px;">
+                    <div class="info-block-title" id="locFormTitle"></div>
+                    <div class="obx-form-grid">
+                        <div class="wf-form-group"><label for="lf_name_en" data-i18n="admin.fName">Name (English) *</label><input id="lf_name_en" maxlength="200"></div>
+                        <div class="wf-form-group"><label for="lf_category" data-i18n="admin.fCategory">Category *</label>
+                            <select id="lf_category">
+                                <option value="food" data-i18n="categories.food">Food Pantry</option>
+                                <option value="health" data-i18n="categories.health">Healthcare</option>
+                                <option value="rehab" data-i18n="categories.rehab">Rehab/Care</option>
+                                <option value="education" data-i18n="categories.education">Education</option>
+                                <option value="jobs" data-i18n="categories.jobs">Employment</option>
+                                <option value="clothing" data-i18n="categories.clothing">Clothing</option>
+                                <option value="community" data-i18n="categories.community">Community</option>
+                            </select></div>
+                        <div class="wf-form-group wide"><label for="lf_address" data-i18n="admin.fAddress">Address (street, Bronx, NY ZIP) *</label><input id="lf_address" maxlength="255"></div>
+                        <div class="wf-form-group"><label for="lf_lat" data-i18n="admin.fLat">Latitude *</label><input id="lf_lat" inputmode="decimal"></div>
+                        <div class="wf-form-group"><label for="lf_lng" data-i18n="admin.fLng">Longitude *</label><input id="lf_lng" inputmode="decimal"></div>
+                        <div class="wide obx-toolbar">
+                            <button class="btn-secondary-wf" onclick="geocodeLocationForm()" data-i18n="admin.findCoords">📍 Find coordinates from address</button>
+                            <span class="obx-muted-note" id="lf_geo_note"></span>
+                        </div>
+                        <div class="wf-form-group"><label for="lf_neighborhood" data-i18n="admin.fNeighborhood">Neighborhood</label><input id="lf_neighborhood" maxlength="100"></div>
+                        <div class="wf-form-group"><label for="lf_phone" data-i18n="admin.fPhone">Phone</label><input id="lf_phone" maxlength="30"></div>
+                        <div class="wf-form-group wide"><label for="lf_website" data-i18n="admin.fWebsite">Website</label><input id="lf_website" placeholder="https://" translate="no"></div>
+                        <div class="wf-form-group wide"><label for="lf_summary_en" data-i18n="admin.fSummary">Description (English)</label><textarea id="lf_summary_en" rows="3"></textarea></div>
+                        <div class="wf-form-group wide"><label for="lf_services_en" data-i18n="admin.fServices">Services (English, one per line)</label><textarea id="lf_services_en" rows="3"></textarea></div>
+                        <details class="wide">
+                            <summary data-i18n="admin.fTranslations">Translations (optional)</summary>
+                            <div id="lf_translations"></div>
+                        </details>
+                        <div class="wide">
+                            <div class="info-block-title" data-i18n="detail.requirements">Requirements & Access</div>
+                            <div class="checkbox-list" id="lf_requirements"></div>
+                        </div>
+                        <div class="wide">
+                            <div class="info-block-title" data-i18n="admin.fHours">Hours (HH:MM-HH:MM, or "closed"; leave all empty if unknown)</div>
+                            <div class="obx-days" id="lf_hours"></div>
+                        </div>
+                        <label class="wf-checkbox wide"><input type="checkbox" id="lf_active" checked><span data-i18n="admin.fActive">Show on the map</span></label>
+                    </div>
+                    <div style="display: flex; gap: 10px; justify-content: flex-end;">
+                        <button class="btn-secondary-wf" onclick="closeLocationForm()" data-i18n="common.cancel">Cancel</button>
+                        <button class="btn-primary-wf" onclick="saveLocationForm()" data-i18n="admin.saveLocation">Save location</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tab: bulk import (admins only) -->
+            <div id="adminTab_import" class="obx-hidden" style="flex-direction: column; gap: 10px;">
+                <p class="obx-muted-note" data-i18n="admin.importDesc">Upload or paste a CSV or JSON list of locations. Required columns: name, category, address (latitude/longitude are looked up if missing). Every row is checked for missing fields, Bronx coordinates and duplicates before anything is saved.</p>
+                <input type="file" id="importFile" accept=".csv,.json,text/csv,application/json" onchange="readImportFile(this)" aria-label="File" data-i18n-aria-label="admin.importFile">
+                <textarea id="importText" rows="6" style="font-family: var(--font-mono); font-size: 11px; border: 1.5px solid var(--wireframe-border); border-radius: var(--radius-md); padding: 8px;" placeholder="name,category,address,latitude,longitude" translate="no" aria-label="CSV or JSON" data-i18n-aria-label="admin.importPaste"></textarea>
+                <div class="obx-toolbar">
+                    <button class="btn-secondary-wf" onclick="runImport(true)" data-i18n="admin.importCheck">Check file</button>
+                    <button class="btn-primary-wf" onclick="runImport(false)" id="btnImportApply" disabled data-i18n="admin.importApply">Import valid rows</button>
+                    <span class="obx-muted-note" id="importSummary"></span>
+                </div>
+                <div class="obx-scroll"><table class="admin-table"><tbody id="importResult"></tbody></table></div>
             </div>
 
             <div style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 10px;">
-                <button class="btn-secondary-wf" onclick="closeModal('adminAuthModal')">Cancel</button>
-                <button class="btn-primary-wf" onclick="verifyAdminPassword()">Unlock Portal</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Modal 3: Admin Questions Dashboard -->
-    <div class="modal-overlay" id="adminDashboardModal">
-        <div class="wf-modal" style="max-width: 650px;">
-            <div class="modal-header">
-                <div class="modal-title">📋 Admin Question Log & Phone Requests</div>
-                <button class="close-modal" onclick="closeModal('adminDashboardModal')">✕</button>
-            </div>
-
-            <p style="font-size: 12px; color: var(--text-muted);">
-                Viewing all stored user questions, selected languages, and phone numbers.
-            </p>
-
-            <div id="adminTableContainer">
-                <table class="admin-table">
-                    <thead>
-                        <tr>
-                            <th>Time</th>
-                            <th>Language</th>
-                            <th>Question</th>
-                            <th>Phone #</th>
-                            <th>Action</th>
-                        </tr>
-                    </thead>
-                    <tbody id="adminTableBody"></tbody>
-                </table>
-            </div>
-
-            <div style="display: flex; gap: 10px; justify-content: space-between; margin-top: 10px;">
-                <button class="btn-secondary-wf" onclick="clearAllAdminQuestions()" style="color: red; border-color: red;">Clear All Logged Questions</button>
-                <button class="btn-primary-wf" onclick="closeModal('adminDashboardModal')">Close Panel</button>
+                <button class="btn-primary-wf" onclick="closeModal('adminDashboardModal')" data-i18n="admin.closePanel">Close Panel</button>
             </div>
         </div>
     </div>
@@ -1289,258 +1462,223 @@
     <div class="modal-overlay" id="loginModal">
         <div class="wf-modal">
             <div class="modal-header">
-                <div class="modal-title" id="loginModalTitle">👤 Log In</div>
-                <button class="close-modal" onclick="closeModal('loginModal')">✕</button>
+                <div class="modal-title" id="loginModalTitle" data-i18n="login.title">👤 Log In</div>
+                <button class="close-modal" onclick="closeModal('loginModal')" aria-label="Close" data-i18n-aria-label="common.close">✕</button>
             </div>
 
-            <p style="font-size: 13px; line-height: 1.45; color: var(--text-muted);">
+            <p style="font-size: 13px; line-height: 1.45; color: var(--text-muted);" data-i18n="login.desc">
                 Log in to keep your saved centers on any device.
             </p>
+            <!-- [ADMIN] shown when "Admin Access" was clicked while logged out -->
+            <p class="obx-muted-note obx-hidden" id="loginStaffHint" data-i18n="login.staffHint">Staff: log in with your Open Bx staff account to open the admin panel.</p>
 
             <div class="wf-form-group" id="signupNameGroup" style="display: none;">
-                <label>Your Name</label>
-                <input type="text" id="signupNameInput" placeholder="First and last name">
+                <label for="signupNameInput" data-i18n="login.name">Your Name</label>
+                <input type="text" id="signupNameInput" placeholder="First and last name" data-i18n-placeholder="login.namePlaceholder">
             </div>
 
             <div class="wf-form-group">
-                <label>Email</label>
-                <input type="email" id="loginEmailInput" placeholder="you@example.com">
+                <label for="loginEmailInput" data-i18n="login.email">Email</label>
+                <input type="email" id="loginEmailInput" placeholder="you@example.com" data-i18n-placeholder="login.emailPlaceholder" autocomplete="username">
             </div>
 
             <div class="wf-form-group">
-                <label>Password</label>
-                <input type="password" id="loginPasswordInput" placeholder="Password...">
+                <label for="loginPasswordInput" data-i18n="login.password">Password</label>
+                <input type="password" id="loginPasswordInput" placeholder="Password..." data-i18n-placeholder="login.passwordPlaceholder" autocomplete="current-password" onkeydown="if (event.key === 'Enter') submitLogin()">
             </div>
 
             <div style="display: flex; gap: 10px; justify-content: space-between; align-items: center; margin-top: 10px;">
-                <button class="btn-secondary-wf" id="btnToggleSignup" onclick="toggleSignupMode()">New here? Create an account</button>
-                <button class="btn-primary-wf" id="btnLoginSubmit" onclick="submitLogin()">Log In</button>
+                <button class="btn-secondary-wf" id="btnToggleSignup" onclick="toggleSignupMode()" data-i18n="login.toggleToSignup">New here? Create an account</button>
+                <button class="btn-primary-wf" id="btnLoginSubmit" onclick="submitLogin()" data-i18n="login.submitLogin">Log In</button>
             </div>
         </div>
     </div>
 
     <!-- Toast Message Box -->
-    <div class="toast-notification" id="toastMessage">
-        <span id="toastText">Notification message</span>
+    <div class="toast-notification" id="toastMessage" role="status" aria-live="polite">
+        <span id="toastText"></span>
     </div>
 
     <!-- Footer -->
     <footer>
         <div class="footer-info">
             <div class="footer-item">
-                <span>📞 NYC 311 / 211 Community Help Hotline</span>
+                <span data-i18n="footer.hotline">📞 NYC 311 / 211 Community Help Hotline</span>
             </div>
             <div class="footer-item">
-                <span id="lblFooterLocation">📍 Open Bx: Verified Centers in The Bronx, NY</span>
+                <span id="lblFooterLocation" data-i18n="footer.location">📍 Open Bx: Verified Centers in The Bronx, NY</span>
             </div>
         </div>
 
-        <div class="emergency-banner">
+        <div class="emergency-banner" data-i18n="footer.emergency">
             🚨 Emergency Hotline: 911 (Medical) | 988 (Crisis & Mental Health)
         </div>
     </footer>
 
     <script>
-        const translations = {
-            en: {
-                slogan: '"For the Bronx, In the Bronx"',
-                subtitle: 'Community Resource & Opportunity Finder',
-                navMap: 'Map View',
-                navList: 'List View',
-                askBtn: '❓ Ask Question',
-                shortcuts: 'Bronx AI Shortcuts:',
-                filterTitle: 'Filter Resources',
-                category: 'Resource Category',
-                reqs: 'Requirements & Access',
-                noID: 'No Photo ID Required',
-                noIncome: 'No Proof of Income Needed',
-                walkIn: 'Walk-ins Allowed',
-                spanish: 'Multilingual Staff On-Site',
-                transit: 'Near Public Transit',
-                distance: 'Maximum Distance',
-                scanner: 'AI Auto-Scanner Active • Hours & Location Verified',
-                listHeader: '📋 All Bronx Verified Resources',
-                listSub: 'Browse all available food, medical, recovery, and job programs in card format.',
-                savedHeader: '⭐ Saved Centers & Programs',
-                savedSub: 'Access bookmarked Bronx centers offline or share them with family.',
-                getDirections: '🗺️ Get Transit Directions',
-                submitToCenter: '💬 Contact / Ask Question',
-                servicesProvided: 'Services Provided',
-                whatYouNeed: 'Requirements & Access',
-                hoursTitle: 'Operating Hours',
-                categories: {
-                    all: 'All Needs',
-                    food: 'Food Pantry',
-                    health: 'Healthcare',
-                    rehab: 'Rehab/Care',
-                    education: 'Education',
-                    jobs: 'Employment',
-                    clothing: 'Clothing',
-                    community: 'Community'
-                }
-            },
-            es: {
-                slogan: '"Para el Bronx, En el Bronx"',
-                subtitle: 'Buscador de Recursos y Oportunidades Comunitarias',
-                navMap: 'Vista del Mapa',
-                navList: 'Vista de Lista',
-                askBtn: '❓ Hacer Pregunta',
-                shortcuts: 'Atajos de IA del Bronx:',
-                filterTitle: 'Filtrar Recursos',
-                category: 'Categoría de Recursos',
-                reqs: 'Requisitos y Acceso',
-                noID: 'Sin Identificación con Foto',
-                noIncome: 'Sin Comprobante de Ingresos',
-                walkIn: 'Se Permiten Entradas Sin Cita',
-                spanish: 'Personal Multilingüe en Sitio',
-                transit: 'Cerca del Transporte Público',
-                distance: 'Distancia Máxima',
-                scanner: 'Escáner de IA Activo • Horarios y Ubicación Verificados',
-                listHeader: '📋 Todos los Recursos Verificados del Bronx',
-                listSub: 'Explore programas de alimentos, médicos, de recuperación y empleo en tarjetas.',
-                savedHeader: '⭐ Centros y Programas Guardados',
-                savedSub: 'Acceda a los centros del Bronx guardados en línea o compártalos.',
-                getDirections: '🗺️ Obtener Direcciones de Tránsito',
-                submitToCenter: '💬 Contactar / Hacer Pregunta',
-                servicesProvided: 'Servicios Ofrecidos',
-                whatYouNeed: 'Requisitos y Acceso',
-                hoursTitle: 'Horarios de Atención',
-                categories: {
-                    all: 'Todas las Necesidades',
-                    food: 'Despensa de Comida',
-                    health: 'Atención Médica',
-                    rehab: 'Rehabilitación',
-                    education: 'Educación',
-                    jobs: 'Empleo',
-                    clothing: 'Ropa',
-                    community: 'Comunidad'
-                }
-            },
-            vi: {
-                slogan: '"Vì Bronx, Tại Bronx"',
-                subtitle: 'Công cụ tìm kiếm tài nguyên & cơ hội cộng đồng',
-                navMap: 'Bản đồ',
-                navList: 'Danh sách',
-                askBtn: '❓ Đặt câu hỏi',
-                shortcuts: 'Phím tắt AI Bronx:',
-                filterTitle: 'Lọc tài nguyên',
-                category: 'Danh mục tài nguyên',
-                reqs: 'Yêu cầu & Truy cập',
-                noID: 'Không cần giấy tờ có ảnh',
-                noIncome: 'Không cần chứng minh thu nhập',
-                walkIn: 'Chấp nhận đến trực tiếp',
-                spanish: 'Có nhân viên đa ngôn ngữ',
-                transit: 'Gần giao thông công cộng',
-                distance: 'Khoảng cách tối đa',
-                scanner: 'Máy quét AI đang hoạt động • Đã xác minh giờ & vị trí',
-                listHeader: '📋 Tất cả tài nguyên đã xác minh tại Bronx',
-                listSub: 'Xem tất cả các chương trình thực phẩm, y tế, phục hồi và việc làm.',
-                savedHeader: '⭐ Trung tâm & Chương trình đã lưu',
-                savedSub: 'Truy cập các địa điểm Bronx đã lưu ngoại tuyến hoặc chia sẻ.',
-                getDirections: '🗺️ Chỉ đường đi lại',
-                submitToCenter: '💬 Liên hệ / Đặt câu hỏi',
-                servicesProvided: 'Dịch vụ cung cấp',
-                whatYouNeed: 'Yêu cầu & Truy cập',
-                hoursTitle: 'Giờ làm việc',
-                categories: {
-                    all: 'Tất cả nhu cầu',
-                    food: 'Kho thực phẩm',
-                    health: 'Chăm sóc y tế',
-                    rehab: 'Cai nghiện/Phục hồi',
-                    education: 'Giáo dục',
-                    jobs: 'Việc làm',
-                    clothing: 'Quần áo',
-                    community: 'Cộng đồng'
-                }
-            },
-            zh: {
-                slogan: '"为了布朗克斯，在布朗克斯"',
-                subtitle: '社区资源与机遇搜索器',
-                navMap: '地图视图',
-                navList: '列表视图',
-                askBtn: '❓ 提问',
-                shortcuts: '布朗克斯 AI 快捷方式:',
-                filterTitle: '筛选资源',
-                category: '资源类别',
-                reqs: '要求与准入',
-                noID: '无需带照片的身份证件',
-                noIncome: '无需收入证明',
-                walkIn: '允许直接前往',
-                spanish: '现场多语言工作人员',
-                transit: '靠近公共交通',
-                distance: '最大距离',
-                scanner: 'AI 自动扫描仪活跃 • 营业时间和位置已核实',
-                listHeader: '📋 所有经核实的布朗克斯资源',
-                listSub: '以卡片形式浏览所有可用的食品、医疗、康复和就业项目。',
-                savedHeader: '⭐ 已保存的中心与项目',
-                savedSub: '离线访问已标记的布朗克斯中心或与家人分享。',
-                getDirections: '🗺️ 获取交通路线',
-                submitToCenter: '💬 联系 / 提出问题',
-                servicesProvided: '提供服务',
-                whatYouNeed: '要求与准入',
-                hoursTitle: '营业时间',
-                categories: {
-                    all: '所有需求',
-                    food: '食品分发',
-                    health: '医疗保健',
-                    rehab: '康复护理',
-                    education: '教育培训',
-                    jobs: '就业求职',
-                    clothing: '衣物援助',
-                    community: '社区服务'
-                }
-            },
-            ar: {
-                slogan: '"من أجل برونكس، في برونكس"',
-                subtitle: 'مستكشف الموارد والفرص المجتمعية',
-                navMap: 'عرض الخريطة',
-                navList: 'عرض القائمة',
-                askBtn: '❓ طرح سؤال',
-                shortcuts: 'اختصارات الذكاء الاصطناعي:',
-                filterTitle: 'تصفية الموارد',
-                category: 'فئة الموارد',
-                reqs: 'المتطلبات والإمكانية',
-                noID: 'لا تتطلب هویة مصورة',
-                noIncome: 'لا يتطلب إثبات دخل',
-                walkIn: 'يُسمح بالدخول المباشر',
-                spanish: 'موظفون يتحدثون لغات متعددة',
-                transit: 'قريب من وسائل النقل العامة',
-                distance: 'الحد الأقصى للمسافة',
-                scanner: 'ماسح الذكاء الاصطناعي نشط • تم التحقق من المواعيد والموقع',
-                listHeader: '📋 جميع الموارد المعتمدة في برونكس',
-                listSub: 'تصفح جميع برامج الغذاء، الرعاية الصحية، التعافي والتوظيف.',
-                savedHeader: '⭐ المراكز والبرامج المحفوظة',
-                savedSub: 'الوصول إلى مراكز برونكس المحفوظة بدون إنترنت أو مشاركتها.',
-                getDirections: '🗺️ الحصول على الاتجاهات',
-                submitToCenter: '💬 التواصل / طرح سؤال',
-                servicesProvided: 'الخدمات المقدمة',
-                whatYouNeed: 'المتطلبات والإمكانية',
-                hoursTitle: 'ساعات العمل',
-                categories: {
-                    all: 'جميع الاحتياجات',
-                    food: 'بنك الطعام',
-                    health: 'الرعاية الصحية',
-                    rehab: 'التعافي',
-                    education: 'التعليم',
-                    jobs: 'الوظائف',
-                    clothing: 'الملابس',
-                    community: 'المجتمع'
-                }
+        /* =====================================================================
+           [I18N] Translation system
+           - UI text lives in static/i18n/<lang>.json (one complete file per language).
+           - HTML elements use data-i18n (text), data-i18n-placeholder,
+             data-i18n-title, data-i18n-aria-label and data-i18n-alt.
+           - JS uses t('key', {vars}). Missing keys fall back to English.
+           - Location content (names, descriptions) is stored per language in the
+             database; when a translation is missing the English text is shown and
+             marked lang="en" so screen readers read it correctly.
+           - The chosen language is saved in localStorage and, when logged in, on the
+             user's profile (users.language_preference).
+           ===================================================================== */
+        const ASSET_VERSION = '__ASSET_VERSION__';   // replaced by server.py (hash of /static)
+        const SUPPORTED_LANGS = ['en', 'es', 'vi', 'zh', 'ar'];
+        const RTL_LANGS = ['ar'];
+        const LOCALES = { en: 'en-US', es: 'es-US', vi: 'vi-VN', zh: 'zh-CN', ar: 'ar' };
+        const LANG_STORAGE_KEY = 'openbx_lang';
+        const I18N = {};
+
+        function storedLang() {
+            try { const s = localStorage.getItem(LANG_STORAGE_KEY); return SUPPORTED_LANGS.includes(s) ? s : null; } catch (e) { return null; }
+        }
+        function initialLang() {
+            const s = storedLang();
+            if (s) return s;
+            const nav = (navigator.language || 'en').slice(0, 2).toLowerCase();
+            return SUPPORTED_LANGS.includes(nav) ? nav : 'en';
+        }
+        let currentLang = initialLang();
+
+        async function loadDict(lang) {
+            if (I18N[lang]) return I18N[lang];
+            const resp = await fetch('/static/i18n/' + lang + '.json?v=' + ASSET_VERSION);
+            if (!resp.ok) throw new Error('i18n ' + lang);
+            I18N[lang] = await resp.json();
+            return I18N[lang];
+        }
+        function lookupKey(dict, key) {
+            return key.split('.').reduce((o, k) => (o && o[k] !== undefined ? o[k] : undefined), dict);
+        }
+        function t(key, vars) {
+            let s = lookupKey(I18N[currentLang], key);
+            if (s === undefined) s = lookupKey(I18N.en, key);
+            if (s === undefined) return key;
+            if (typeof s === 'string' && vars) {
+                s = s.replace(/\{(\w+)\}/g, (m, k) => (vars[k] !== undefined && vars[k] !== null ? vars[k] : m));
             }
-        };
+            return s;
+        }
+        /* Location content: {en, es, ...} -> text in the current language, English fallback */
+        function loc(map) {
+            if (!map) return '';
+            return map[currentLang] || map.en || '';
+        }
+        /* Same, as escaped HTML; English fallback is marked lang="en" */
+        function locHTML(map) {
+            if (!map) return '';
+            if (map[currentLang] || currentLang === 'en') return escapeHTML(map[currentLang] || map.en || '');
+            return map.en ? '<span lang="en" dir="ltr">' + escapeHTML(map.en) + '</span>' : '';
+        }
+        function locList(map) {
+            if (!map) return [];
+            return (map[currentLang] && map[currentLang].length) ? map[currentLang] : (map.en || []);
+        }
+
+        function applyTranslations() {
+            document.querySelectorAll('[data-i18n]').forEach(el => { el.textContent = t(el.getAttribute('data-i18n')); });
+            ['placeholder', 'title', 'aria-label', 'alt'].forEach(attr => {
+                document.querySelectorAll('[data-i18n-' + attr + ']').forEach(el => {
+                    el.setAttribute(attr, t(el.getAttribute('data-i18n-' + attr)));
+                });
+            });
+            document.title = t('meta.pageTitle');
+            document.documentElement.lang = currentLang;
+            document.documentElement.dir = RTL_LANGS.includes(currentLang) ? 'rtl' : 'ltr';
+            const sel = document.getElementById('languageSelect');
+            if (sel) sel.value = currentLang;
+            updateDistanceLabel(maxDistanceMiles, true);
+            setAccountButton();
+            updateLoginModalText();
+        }
+
+        /* Number / date formatting in the selected language */
+        function fmtNum(n, digits = 1) {
+            return new Intl.NumberFormat(LOCALES[currentLang], { minimumFractionDigits: digits, maximumFractionDigits: digits }).format(n);
+        }
+        function fmtDateTime(iso) {
+            return new Intl.DateTimeFormat(LOCALES[currentLang], { dateStyle: 'medium', timeStyle: 'short', timeZone: 'America/New_York' }).format(new Date(iso));
+        }
+        function fmtClock(date) {
+            return new Intl.DateTimeFormat(LOCALES[currentLang], { hour: '2-digit', minute: '2-digit' }).format(date);
+        }
+        function fmtHHMM(hhmm) {
+            const [h, m] = hhmm.split(':').map(Number);
+            return new Intl.DateTimeFormat(LOCALES[currentLang], { hour: 'numeric', minute: '2-digit', timeZone: 'UTC' })
+                .format(new Date(Date.UTC(2024, 0, 1, h % 24, m)));
+        }
+        const DAY_KEYS = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'];
+        function dayName(i) {  // 2024-01-01 was a Monday
+            return new Intl.DateTimeFormat(LOCALES[currentLang], { weekday: 'short', timeZone: 'UTC' }).format(new Date(Date.UTC(2024, 0, 1 + i)));
+        }
+        /* {"mon": "09:00-15:30", ...} -> [[label, value], ...] in the current language */
+        function hoursRows(raw) {
+            if (!raw || !DAY_KEYS.every(d => raw[d])) return [];
+            if (DAY_KEYS.every(d => raw[d] === '00:00-24:00')) return [[t('detail.everyDay'), t('detail.open24')]];
+            const groups = new Map();
+            DAY_KEYS.forEach((d, i) => { if (!groups.has(raw[d])) groups.set(raw[d], []); groups.get(raw[d]).push(i); });
+            const rows = [];
+            groups.forEach((idxs, value) => {
+                const runs = [];
+                let start = idxs[0];
+                for (let k = 0; k < idxs.length; k++) {
+                    if (idxs[k + 1] !== idxs[k] + 1) { runs.push([start, idxs[k]]); start = idxs[k + 1]; }
+                }
+                const label = runs.map(([s, e]) => s === e ? dayName(s) : dayName(s) + ' – ' + dayName(e)).join(', ');
+                let text;
+                if (value === 'closed') text = t('detail.closed');
+                else if (value === '00:00-24:00') text = t('detail.open24');
+                else { const [a, b] = value.split('-'); text = fmtHHMM(a) + ' – ' + fmtHHMM(b); }
+                rows.push([label, text]);
+            });
+            return rows;
+        }
+
+        /* API errors carry a `code`; show them in the user's language */
+        function errorText(e) {
+            if (e && e.code) {
+                const msg = t('errors.' + e.code);
+                if (msg !== 'errors.' + e.code) return msg;
+            }
+            return (e && e.message) || t('errors.generic');
+        }
+
+        const i18nReady = Promise.all([loadDict('en'), currentLang !== 'en' ? loadDict(currentLang).catch(() => { currentLang = 'en'; }) : null])
+            .catch(() => { /* page keeps its English markup */ });
+
+        /* =====================================================================
+           [MAP THEME] One switch for the light basemap + Bronx imagery.
+           enabled: true  -> OpenStreetMap tiles softened by a CSS filter scoped to
+                             the map's tile pane, Bronx borough outline, and Bronx
+                             photo markers (Wikimedia Commons, lazy-loaded in popups)
+           enabled: false -> the original Esri street map, no outline, no photos
+           Only the map is affected either way.
+           ===================================================================== */
+        const MAP_THEME_CONFIG = { enabled: true };
+
+        /* Bronx bounding box (also used for the initial view and the pan limit) */
+        const BRONX_BOUNDS = [[40.785, -73.935], [40.918, -73.748]];
 
         let userCoords = { lat: 40.8600, lng: -73.8900 }; // Default Fordham Center
-        let userNeighborhood = "Fordham, Bronx NY";
+        let userNeighborhoodKey = 'map.defaultCenter';
         let savedCenterIds = ["bx_food_1"];
-        let currentLang = "en";
         let maxDistanceMiles = 10;
 
         let leafletMap = null;
-        let markersGroup = null;
+        let markersGroup = null;     // [MAP] cluster group with the resource pins
+        let userLayer = null;        // user position + radius circle (not clustered)
         let radiusCircle = null;
+        let zoomControl = null;
+        let dataAttribution = null;
+        let markerById = {};
 
-        /* [DB] Admin access now uses a real staff login (POST /api/login, role admin/counselor)
-           instead of a password stored in the page. */
+        /* [DB] Admin access uses the normal account login (role checked by the server). */
         let currentUser = null; // set from GET /api/me or after logging in
 
         /* [DB] Small fetch helper for the JSON API */
@@ -1553,22 +1691,34 @@
             const resp = await fetch(url, opts);
             let data = null;
             try { data = await resp.json(); } catch (e) { /* empty body */ }
-            if (!resp.ok) throw new Error((data && data.error) || ('Request failed (' + resp.status + ')'));
+            if (!resp.ok) {
+                const error = new Error((data && data.error) || ('Request failed (' + resp.status + ')'));
+                error.code = data && data.code;
+                error.status = resp.status;
+                error.data = data;
+                throw error;
+            }
             return data;
         }
 
-        /* [DB] Escape user-submitted text before putting it into innerHTML */
+        /* [DB] Escape text before putting it into innerHTML (all location and question text) */
         function escapeHTML(str) {
             return String(str == null ? '' : str).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
         }
 
-        /* [DB] Load resources from the database */
+        /* [DB][PERF] Load the compact resource list (details are fetched when a pin is opened) */
         async function loadResourcesFromAPI() {
             try {
-                resources = await apiFetch('/api/resources');
+                resources = await apiFetch('/api/resources?view=slim');
             } catch (e) {
-                showToast("Could not load resources from the server.");
+                showToast(t('errors.loadResources'));
             }
+        }
+        const detailCache = {};
+        async function loadResourceDetail(id) {
+            if (detailCache[id]) return detailCache[id];
+            detailCache[id] = await apiFetch('/api/resources/' + encodeURIComponent(id));
+            return detailCache[id];
         }
 
         /* [DB] Restore a logged-in session and use the account's saved resources */
@@ -1579,27 +1729,36 @@
             } catch (e) { /* stay a guest */ }
         }
 
+        function isStaff(user) { return !!user && (user.role === 'admin' || user.role === 'counselor'); }
+
+        function setAccountButton() {
+            const btn = document.getElementById("btnAccount");
+            if (!btn) return;
+            btn.innerText = currentUser ? t('header.logoutNamed', { name: currentUser.full_name.split(" ")[0] }) : t('header.login');
+        }
+
         function setCurrentUser(user) {
             currentUser = user;
-            const btn = document.getElementById("btnAccount");
-            if (user) {
-                savedCenterIds = user.saved_resources.slice();
-                btn.innerText = "👤 " + user.full_name.split(" ")[0] + " (Log Out)";
-            } else {
-                btn.innerText = "👤 Log In";
-            }
+            if (user) savedCenterIds = user.saved_resources.slice();
+            setAccountButton();
             document.getElementById("savedCount").innerText = savedCenterIds.length;
             renderFullListView();
             renderSavedListView();
         }
 
-        /* [DB] Filled from GET /api/questions when a staff member opens the admin panel */
+        /* [I18N] A logged-in user's saved language wins unless they picked one on this device */
+        async function applyUserLanguagePreference() {
+            if (currentUser && !storedLang() && SUPPORTED_LANGS.includes(currentUser.language_preference)
+                && currentUser.language_preference !== currentLang) {
+                await changeLanguage(currentUser.language_preference, { persist: false, quiet: true });
+            }
+        }
+
+        /* [DB] Filled from the API when a staff member opens the admin panel */
         let userQuestionsList = [];
 
-        /* Extended Bronx Resources with Exact Geographic Coordinates */
-        /* [DB] Resources now live in Postgres and are loaded from GET /api/resources
-           on page load (see loadResourcesFromAPI). The original hard-coded list was
-           seeded into the database (page_resources.json + seed_from_page.py). */
+        /* [DB] Resources live in Postgres and are loaded from GET /api/resources?view=slim
+           on page load (see loadResourcesFromAPI). */
         let resources = [];
 
         let selectedCategoryId = "all";
@@ -1618,33 +1777,110 @@
 
         /* INITIALIZATION WITH LEAFLET MAP */
         window.onload = async function() {
+            await i18nReady;                // [I18N] dictionaries before first render
+            applyTranslations();
             initLeafletMap();
             await loadResourcesFromAPI();   // [DB] fetch resources before first render
             await loadCurrentUser();        // [DB] restore login (saved resources)
+            await applyUserLanguagePreference();
             filterLocations();
             renderFullListView();
             renderSavedListView();
             startAILocationScanner();
+            loadMapExtras();                // [MAP THEME] outline + photos, after the main content
         };
 
         function initLeafletMap() {
             leafletMap = L.map('leafletMap', {
                 center: [userCoords.lat, userCoords.lng],
-                zoom: 13,
-                zoomControl: true
+                zoom: 12,
+                minZoom: 10,
+                zoomControl: false,
+                /* [MAP] keep the view around the Bronx */
+                maxBounds: L.latLngBounds(BRONX_BOUNDS).pad(0.6),
+                maxBoundsViscosity: 0.8
             });
+            leafletMap.fitBounds(BRONX_BOUNDS);
+            setZoomControl();
 
-            /* 
-               KEYLESS MAP TILE PROVIDER:
-               Uses Esri World Street Map vector/raster tiles requiring no API keys,
-               signups, or OAuth credentials, completely bypassing HTTP 403 errors.
-            */
-            L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}', {
-                attribution: 'Tiles &copy; Esri &mdash; Source: Esri, DeLorme, NAVTEQ, USGS, Intermap, iPC, NRCAN, Esri Japan, METI, Esri China (Hong Kong), Esri (Thailand), TomTom, 2012',
-                maxZoom: 19
-            }).addTo(leafletMap);
+            if (MAP_THEME_CONFIG.enabled) {
+                /* [MAP THEME] light map: OSM standard tiles, softened by the CSS filter on
+                   #leafletMap.obx-light .leaflet-tile-pane (only this map is affected) */
+                document.getElementById('leafletMap').classList.add('obx-light');
+                L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> contributors',
+                    maxZoom: 19
+                }).addTo(leafletMap);
+            } else {
+                /*
+                   KEYLESS MAP TILE PROVIDER:
+                   Uses Esri World Street Map vector/raster tiles requiring no API keys,
+                   signups, or OAuth credentials, completely bypassing HTTP 403 errors.
+                */
+                L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}', {
+                    attribution: 'Tiles &copy; Esri &mdash; Source: Esri, DeLorme, NAVTEQ, USGS, Intermap, iPC, NRCAN, Esri Japan, METI, Esri China (Hong Kong), Esri (Thailand), TomTom, 2012',
+                    maxZoom: 19
+                }).addTo(leafletMap);
+            }
+            setDataAttribution();
 
-            markersGroup = L.layerGroup().addTo(leafletMap);
+            userLayer = L.layerGroup().addTo(leafletMap);
+            /* [MAP] cluster nearby pins; falls back to a plain layer if the plugin failed to load */
+            markersGroup = (L.markerClusterGroup ? L.markerClusterGroup({
+                chunkedLoading: true,
+                maxClusterRadius: 45,
+                showCoverageOnHover: false,
+                spiderfyOnMaxZoom: true,
+                disableClusteringAtZoom: 17
+            }) : L.layerGroup()).addTo(leafletMap);
+        }
+
+        /* [I18N] Leaflet controls that contain text are rebuilt when the language changes */
+        function setZoomControl() {
+            if (zoomControl) leafletMap.removeControl(zoomControl);
+            zoomControl = L.control.zoom({ zoomInTitle: t('map.zoomIn'), zoomOutTitle: t('map.zoomOut') }).addTo(leafletMap);
+        }
+        function setDataAttribution() {
+            if (!leafletMap) return;
+            if (dataAttribution) leafletMap.attributionControl.removeAttribution(dataAttribution);
+            dataAttribution = t('map.dataCredit', {
+                source: '<a href="https://data.cityofnewyork.us/d/ji82-xba5" target="_blank" rel="noopener">NYC Open Data</a>'
+            });
+            leafletMap.attributionControl.addAttribution(dataAttribution);
+        }
+
+        /* [MAP THEME] Bronx outline + Bronx photo markers. Loaded after the page is usable;
+           photos are only downloaded when a photo popup is opened. */
+        let bronxPhotos = [];
+        function loadMapExtras() {
+            if (!MAP_THEME_CONFIG.enabled) return;
+            const later = window.requestIdleCallback || (fn => setTimeout(fn, 300));
+            later(async () => {
+                try {
+                    const outline = await (await fetch('/static/bronx-boundary.json?v=' + ASSET_VERSION)).json();
+                    L.geoJSON(outline, { interactive: false, style: { color: '#1f8257', weight: 2, opacity: 0.55, fill: false, dashArray: '6 4' } }).addTo(leafletMap);
+                    const data = await (await fetch('/static/bronx-photos.json?v=' + ASSET_VERSION)).json();
+                    bronxPhotos = data.photos || [];
+                    const icon = L.divIcon({ className: 'obx-photo-pin', html: '📷', iconSize: [26, 26], iconAnchor: [13, 13] });
+                    bronxPhotos.forEach(p => {
+                        L.marker([p.lat, p.lng], { icon: icon, title: p.title, zIndexOffset: -500, keyboard: true })
+                            .bindPopup(() => photoPopupHTML(p), { className: 'obx-photo-popup', maxWidth: 280 })
+                            .addTo(leafletMap);
+                    });
+                } catch (e) { /* the map works without the extras */ }
+            });
+        }
+        function photoPopupHTML(p) {
+            const dir = RTL_LANGS.includes(currentLang) ? 'rtl' : 'ltr';
+            return `<div dir="${dir}">
+                <div class="obx-photo-title" dir="ltr">📷 ${escapeHTML(p.title)}</div>
+                <img src="${p.src}?v=${ASSET_VERSION}" width="${p.width}" height="${p.height}" loading="lazy" decoding="async"
+                     alt="${escapeHTML(t('map.photoAlt', { place: p.title }))}">
+                <div class="obx-photo-credit">${escapeHTML(t('map.photoCredit'))}
+                    <a href="${p.sourceUrl}" target="_blank" rel="noopener">${escapeHTML(p.author)}</a>,
+                    <a href="${p.licenseUrl}" target="_blank" rel="noopener">${escapeHTML(p.license)}</a>
+                    · ${escapeHTML(t('map.photoResized'))}</div>
+            </div>`;
         }
 
         /* SPLASH DISMISS FUNCTION */
@@ -1657,12 +1893,14 @@
         }
 
         /* TOAST NOTIFICATION HELPER */
+        let toastTimer = null;
         function showToast(msg) {
             const toast = document.getElementById("toastMessage");
             const text = document.getElementById("toastText");
             text.innerText = msg;
             toast.style.display = "flex";
-            setTimeout(() => {
+            clearTimeout(toastTimer);
+            toastTimer = setTimeout(() => {
                 toast.style.display = "none";
             }, 3500);
         }
@@ -1670,29 +1908,30 @@
         /* GPS RADAR DETECTOR WITH USER VISUAL CIRCLE */
         function requestUserLocation() {
             const statusText = document.getElementById("locationText");
+            statusText.removeAttribute('data-i18n');   // status now changes with the GPS result
             if (navigator.geolocation) {
-                statusText.innerText = "⏳ Radar Scanning: Contacting device GPS satellites...";
+                statusText.innerText = t('radar.scanning');
                 navigator.geolocation.getCurrentPosition(
                     (position) => {
                         userCoords = {
                             lat: position.coords.latitude,
                             lng: position.coords.longitude
                         };
-                        userNeighborhood = "Device GPS Coordinates Active";
-                        statusText.innerText = `📍 Radar Circle Active: Device Location Locked (${userCoords.lat.toFixed(4)}, ${userCoords.lng.toFixed(4)})`;
+                        userNeighborhoodKey = 'map.deviceLocation';
+                        statusText.innerText = t('radar.locked', { lat: fmtNum(userCoords.lat, 4), lng: fmtNum(userCoords.lng, 4) });
                         filterLocations();
-                        showToast("GPS position acquired!");
+                        showToast(t('toasts.gpsAcquired'));
                     },
                     (error) => {
                         userCoords = { lat: 40.8600, lng: -73.8900 };
-                        userNeighborhood = "Fordham / Bedford Park, Bronx NY";
-                        statusText.innerText = "📍 Radar Circle Active: Highlighted Fordham Road Community Circle";
+                        userNeighborhoodKey = 'map.defaultCenter';
+                        statusText.innerText = t('radar.fordham');
                         filterLocations();
-                        showToast("Using default Fordham location");
+                        showToast(t('toasts.gpsDefault'));
                     }
                 );
             } else {
-                statusText.innerText = "📍 Radar Circle Active: Highlighted Bronx Community Region";
+                statusText.innerText = t('radar.region');
                 filterLocations();
             }
         }
@@ -1701,9 +1940,7 @@
         function startAILocationScanner() {
             setInterval(() => {
                 const scannerLabel = document.getElementById("lblAIScanner");
-                const timeStr = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
-                const langDict = translations[currentLang] || translations['en'];
-                scannerLabel.innerText = langDict.scanner + " (" + timeStr + ")";
+                scannerLabel.innerText = t('map.scanner') + " (" + fmtClock(new Date()) + ")";
             }, 30000);
         }
 
@@ -1738,6 +1975,7 @@
             const walkIn = document.getElementById("chkWalkIn").checked;
 
             return resources.filter(r => {
+                if (r.lat == null || r.lng == null) return false;
                 // Calculate real-time distance in miles from active center
                 const dist = getDistanceInMiles(userCoords.lat, userCoords.lng, r.lat, r.lng);
                 r.calculatedDistance = dist;
@@ -1751,27 +1989,49 @@
             });
         }
 
-        function filterLocations() {
+        function pinIcon(res, isActive) {
+            return L.divIcon({
+                className: `custom-map-pin ${isActive ? 'active-pin' : ''}`,
+                html: escapeHTML(res.emoji || '📍'),
+                iconSize: isActive ? [42, 42] : [34, 34],
+                iconAnchor: isActive ? [21, 21] : [17, 17]
+            });
+        }
+
+        function popupHTML(res) {
+            const dir = RTL_LANGS.includes(currentLang) ? 'rtl' : 'ltr';
+            return `<div dir="${dir}">
+                    <div style="font-size: 13px; font-weight: 800;">${escapeHTML(res.emoji)} ${locHTML(res.name)}</div>
+                    <div style="font-size: 11px; color: #537080;">📍 ${escapeHTML(res.address)}</div>
+                    <div style="font-size: 11px; font-weight: bold; color: #1f8257; margin-top: 4px;">${escapeHTML(t('map.milesAway', { n: fmtNum(res.calculatedDistance || 0) }))}</div>
+                    <button onclick="selectResource('${escapeHTML(res.id)}')" style="margin-top:6px; background:#1f8257; color:white; border:none; padding:4px 10px; border-radius:4px; font-size:11px; cursor:pointer; width:100%;">${escapeHTML(t('map.viewDetails'))}</button>
+                </div>`;
+        }
+
+        /* opts.fit = false keeps the current view (used when only the language changes) */
+        function filterLocations(opts = {}) {
+            const fit = opts.fit !== false;
             const filtered = getFilteredResources();
 
             // Clear previous map markers
-            if (markersGroup) {
-                markersGroup.clearLayers();
-            }
+            markersGroup.clearLayers();
+            userLayer.clearLayers();
+            markerById = {};
 
             // Render Distance Coverage Radius Circle
-            if (radiusCircle) {
-                leafletMap.removeLayer(radiusCircle);
-            }
             radiusCircle = L.circle([userCoords.lat, userCoords.lng], {
                 color: '#1f8257',
                 fillColor: '#b2e4cb',
                 fillOpacity: 0.15,
-                radius: maxDistanceMiles * 1609.34 // convert miles to meters
-            }).addTo(leafletMap);
+                radius: maxDistanceMiles * 1609.34, // convert miles to meters
+                interactive: false
+            }).addTo(userLayer);
 
             const bounds = L.latLngBounds();
-            bounds.extend([userCoords.lat, userCoords.lng]);
+            /* [MAP] only include the user's point when it is near the Bronx */
+            if (L.latLngBounds(BRONX_BOUNDS).pad(0.3).contains([userCoords.lat, userCoords.lng])) {
+                bounds.extend([userCoords.lat, userCoords.lng]);
+            }
 
             // Add center marker
             const userIcon = L.divIcon({
@@ -1781,43 +2041,27 @@
                 iconAnchor: [18, 18]
             });
             L.marker([userCoords.lat, userCoords.lng], { icon: userIcon })
-                .bindPopup("<b>Your Center Location</b><br>" + userNeighborhood)
-                .addTo(markersGroup);
+                .bindPopup(() => "<b>" + escapeHTML(t('map.yourLocation')) + "</b><br>" + escapeHTML(t(userNeighborhoodKey)))
+                .addTo(userLayer);
 
             // Add markers for all filtered options
-            filtered.forEach(res => {
-                const resName = res.name[currentLang] || res.name['en'];
-                const isActive = (res.id === activeSelectedResourceId);
-
-                const customIcon = L.divIcon({
-                    className: `custom-map-pin ${isActive ? 'active-pin' : ''}`,
-                    html: res.emoji,
-                    iconSize: isActive ? [42, 42] : [34, 34],
-                    iconAnchor: isActive ? [21, 21] : [17, 17]
-                });
-
-                const marker = L.marker([res.lat, res.lng], { icon: customIcon });
-                
-                marker.bindPopup(`
-                    <div style="font-size: 13px; font-weight: 800;">${res.emoji} ${resName}</div>
-                    <div style="font-size: 11px; color: #537080;">📍 ${res.address}</div>
-                    <div style="font-size: 11px; font-weight: bold; color: #1f8257; margin-top: 4px;">${res.calculatedDistance.toFixed(1)} miles away</div>
-                    <button onclick="selectResource('${res.id}')" style="margin-top:6px; background:#1f8257; color:white; border:none; padding:4px 10px; border-radius:4px; font-size:11px; cursor:pointer; width:100%;">View Details</button>
-                `);
-
+            const markers = filtered.map(res => {
+                const marker = L.marker([res.lat, res.lng], { icon: pinIcon(res, res.id === activeSelectedResourceId), title: loc(res.name) });
+                marker.bindPopup(() => popupHTML(res));
                 marker.on('click', () => {
-                    selectResource(res.id);
+                    selectResource(res.id, { pan: false });
                 });
-
-                marker.addTo(markersGroup);
+                markerById[res.id] = marker;
                 bounds.extend([res.lat, res.lng]);
+                return marker;
             });
+            if (markersGroup.addLayers) markersGroup.addLayers(markers); else markers.forEach(m => m.addTo(markersGroup));
 
             // Adjust view to show all filtered pins
             if (filtered.length > 0) {
-                leafletMap.fitBounds(bounds, { padding: [40, 40] });
+                if (fit && bounds.isValid()) leafletMap.fitBounds(bounds, { padding: [40, 40], maxZoom: 15 });
                 if (!filtered.some(r => r.id === activeSelectedResourceId)) {
-                    selectResource(filtered[0].id);
+                    selectResource(filtered[0].id, { pan: false });
                 } else {
                     renderResourceDetails(activeSelectedResourceId);
                 }
@@ -1826,63 +2070,60 @@
             }
         }
 
-        /* RENDER FULL LIST VIEW IN CURRENT LANGUAGE */
+        function cardHTML(res, starred, withSummary) {
+            return `
+                    <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+                        <span class="res-type-badge">${escapeHTML(res.emoji)} ${escapeHTML(t('categories.' + res.category))}</span>
+                        <button onclick="toggleBookmark('${escapeHTML(res.id)}')" style="background:none; border:none; cursor:pointer; font-size:18px;" aria-label="${escapeHTML(t(starred ? 'saved.remove' : 'saved.add'))}">
+                            ${starred ? '⭐' : '☆'}
+                        </button>
+                    </div>
+                    <h3 style="font-size:16px; font-weight:800;">${locHTML(res.name)}</h3>
+                    <div style="font-size:11px; font-family:var(--font-mono); color:var(--text-muted);">📍 ${escapeHTML(res.address)}</div>
+                    ${withSummary ? `<p style="font-size:12.5px; line-height:1.4;">${locHTML(res.aiSummary)}</p>` : ''}
+                    <button class="btn-primary-wf" onclick="selectResource('${escapeHTML(res.id)}'); switchScreen('map');">
+                        ${escapeHTML(t('detail.getDirections'))}
+                    </button>`;
+        }
+
+        /* RENDER FULL LIST VIEW IN CURRENT LANGUAGE ([PERF] 24 cards at a time) */
+        const LIST_PAGE_SIZE = 24;
+        let listShown = LIST_PAGE_SIZE;
         function renderFullListView() {
             const container = document.getElementById("fullCardListContainer");
             container.innerHTML = "";
-            const dict = translations[currentLang] || translations['en'];
-
-            resources.forEach(res => {
-                const resName = res.name[currentLang] || res.name['en'];
-                const resSummary = res.aiSummary[currentLang] || res.aiSummary['en'];
-
+            resources.slice(0, listShown).forEach(res => {
                 const card = document.createElement("div");
                 card.className = "card-item";
-                card.innerHTML = `
-                    <div style="display:flex; justify-content:space-between; align-items:flex-start;">
-                        <span class="res-type-badge">${res.emoji} ${res.category.toUpperCase()}</span>
-                        <button onclick="toggleBookmark('${res.id}')" style="background:none; border:none; cursor:pointer; font-size:18px;">
-                            ${savedCenterIds.includes(res.id) ? '⭐' : '☆'}
-                        </button>
-                    </div>
-                    <h3 style="font-size:16px; font-weight:800;">${resName}</h3>
-                    <div style="font-size:11px; font-family:var(--font-mono); color:var(--text-muted);">📍 ${res.address}</div>
-                    <p style="font-size:12.5px; line-height:1.4;">${resSummary}</p>
-                    <button class="btn-primary-wf" onclick="selectResource('${res.id}'); switchScreen('map');">
-                        ${dict.getDirections}
-                    </button>
-                `;
+                card.innerHTML = cardHTML(res, savedCenterIds.includes(res.id), true);
                 container.appendChild(card);
             });
+            const more = document.getElementById("btnShowMore");
+            const left = resources.length - Math.min(listShown, resources.length);
+            more.classList.toggle('obx-hidden', left <= 0);
+            more.innerText = t('list.showMore', { n: fmtNum(left, 0) });
+        }
+        function showMoreCards() {
+            listShown += LIST_PAGE_SIZE;
+            renderFullListView();
         }
 
         /* RENDER SAVED LIST VIEW */
         function renderSavedListView() {
             const container = document.getElementById("savedCardListContainer");
             container.innerHTML = "";
-            const dict = translations[currentLang] || translations['en'];
 
             const savedItems = resources.filter(r => savedCenterIds.includes(r.id));
 
             if(savedItems.length === 0) {
-                container.innerHTML = `<p style="grid-column: 1/-1; font-size: 13px; color: var(--text-muted);">No saved centers yet. Click the star icon on any resource card to save it here!</p>`;
+                container.innerHTML = `<p style="grid-column: 1/-1; font-size: 13px; color: var(--text-muted);">${escapeHTML(t('saved.empty'))}</p>`;
                 return;
             }
 
             savedItems.forEach(res => {
-                const resName = res.name[currentLang] || res.name['en'];
-
                 const card = document.createElement("div");
                 card.className = "card-item";
-                card.innerHTML = `
-                    <div style="display:flex; justify-content:space-between; align-items:flex-start;">
-                        <span class="res-type-badge">${res.emoji} ${res.category.toUpperCase()}</span>
-                        <button onclick="toggleBookmark('${res.id}')" style="background:none; border:none; cursor:pointer; font-size:18px;">⭐</button>
-                    </div>
-                    <h3 style="font-size:16px; font-weight:800;">${resName}</h3>
-                    <div style="font-size:11px; font-family:var(--font-mono); color:var(--text-muted);">📍 ${res.address}</div>
-                    <button class="btn-primary-wf" onclick="selectResource('${res.id}'); switchScreen('map');">${dict.getDirections}</button>
-                `;
+                card.innerHTML = cardHTML(res, true, false);
                 container.appendChild(card);
             });
         }
@@ -1890,221 +2131,308 @@
         function toggleBookmark(id) {
             if(savedCenterIds.includes(id)) {
                 savedCenterIds = savedCenterIds.filter(i => i !== id);
-                showToast("Removed from saved locations");
+                showToast(t('toasts.removedSaved'));
             } else {
                 savedCenterIds.push(id);
-                showToast("Saved to offline bookmarks!");
+                showToast(t('toasts.savedOffline'));
             }
             /* [DB] Logged-in users: persist to users.saved_resources (guests stay local) */
             if (currentUser) {
                 const adding = savedCenterIds.includes(id);
                 apiFetch('/api/saved/' + encodeURIComponent(id), { method: adding ? 'POST' : 'DELETE' })
                     .then(data => { currentUser.saved_resources = data.saved_resources; })
-                    .catch(e => showToast("Could not sync saved locations: " + e.message));
+                    .catch(e => showToast(t('errors.syncSaved', { error: errorText(e) })));
             }
             document.getElementById("savedCount").innerText = savedCenterIds.length;
             renderFullListView();
             renderSavedListView();
         }
 
-        /* SELECT RESOURCE & UPDATE SIDEBAR + MAP CENTER */
-        function selectResource(id) {
+        /* SELECT RESOURCE & UPDATE SIDEBAR + MAP CENTER
+           opts.pan = false: just show details (the map view stays where it is) */
+        function selectResource(id, opts = {}) {
+            const prev = activeSelectedResourceId;
             activeSelectedResourceId = id;
             const res = resources.find(r => r.id === id);
 
-            if (res && leafletMap) {
-                leafletMap.setView([res.lat, res.lng], 15, { animate: true });
+            /* [MAP] highlight the active pin */
+            if (markerById[prev] && prev !== id) {
+                const p = resources.find(r => r.id === prev);
+                if (p) markerById[prev].setIcon(pinIcon(p, false));
+            }
+            if (markerById[id] && res) markerById[id].setIcon(pinIcon(res, true));
+
+            if (res && leafletMap && opts.pan !== false) {
+                if (markerById[id] && markersGroup.zoomToShowLayer) {
+                    markersGroup.zoomToShowLayer(markerById[id], () => leafletMap.setView([res.lat, res.lng], Math.max(leafletMap.getZoom(), 15), { animate: true }));
+                } else {
+                    leafletMap.setView([res.lat, res.lng], 15, { animate: true });
+                }
             }
 
             renderResourceDetails(id);
         }
 
-        /* RENDER RESOURCE DETAILS IN SIDEBAR */
+        function requirementChips(req) {
+            if (!req || Object.keys(req).length === 0) {
+                return `<span class="req-chip">ℹ️ ${escapeHTML(t('detail.reqUnknown'))}</span>`;
+            }
+            const chips = [];
+            if ('noID' in req) chips.push(req.noID ? '✅ ' + t('filters.noID') : '⚠️ ' + t('detail.photoIdRequired'));
+            if ('noProofIncome' in req) chips.push(req.noProofIncome ? '✅ ' + t('filters.noIncome') : 'ℹ️ ' + t('detail.incomeVerification'));
+            if ('walkIn' in req) chips.push(req.walkIn ? '🚶 ' + t('filters.walkIn') : '📅 ' + t('detail.apptRequired'));
+            if ('spanish' in req) chips.push(req.spanish ? '🗣️ ' + t('filters.spanish') : '🗣️ ' + t('detail.englishPrimary'));
+            return chips.map(c => `<span class="req-chip">${escapeHTML(c)}</span>`).join('');
+        }
+
+        /* RENDER RESOURCE DETAILS IN SIDEBAR
+           [PERF] the slim list has the basics; hours/services/contact come from
+           GET /api/resources/<id> and are cached */
         function renderResourceDetails(id) {
             const res = resources.find(r => r.id === id);
             const panel = document.getElementById("detailPanel");
-            const dict = translations[currentLang] || translations['en'];
 
             if(!res) {
-                panel.innerHTML = `<p style="padding: 20px; font-size: 12px; color: var(--text-muted);">No matching verified Bronx resources found for current category, requirements, and distance.</p>`;
+                panel.innerHTML = `<p style="padding: 20px; font-size: 12px; color: var(--text-muted);">${escapeHTML(t('detail.none'))}</p>`;
                 return;
             }
+            const detail = detailCache[id];
+            if (!detail) {
+                loadResourceDetail(id).then(() => {
+                    if (activeSelectedResourceId === id) renderResourceDetails(id);
+                }).catch(() => { /* keep the basic view */ });
+            }
 
-            const resName = res.name[currentLang] || res.name['en'];
-            const resStatus = res.openStatus[currentLang] || res.openStatus['en'];
-            const resSummary = res.aiSummary[currentLang] || res.aiSummary['en'];
-            const resServices = res.services[currentLang] || res.services['en'];
-            const dist = res.calculatedDistance ? res.calculatedDistance.toFixed(1) : getDistanceInMiles(userCoords.lat, userCoords.lng, res.lat, res.lng).toFixed(1);
-
-            let directionsUrl = `https://www.google.com/maps/dir/?api=1&origin=${userCoords.lat},${userCoords.lng}&destination=${encodeURIComponent(res.address)}&travelmode=transit`;
+            const dist = res.calculatedDistance != null ? res.calculatedDistance : getDistanceInMiles(userCoords.lat, userCoords.lng, res.lat, res.lng);
+            const directionsUrl = `https://www.google.com/maps/dir/?api=1&origin=${userCoords.lat},${userCoords.lng}&destination=${encodeURIComponent(res.address || '')}&travelmode=transit`;
+            const services = detail ? locList(detail.services) : [];
+            const rows = detail ? hoursRows(detail.hoursRaw) : [];
+            const status = detail ? locHTML(detail.openStatus) : '';
+            const sourceLine = detail && detail.source === 'nyc_open_data'
+                ? `<div class="obx-muted-note">${escapeHTML(t('detail.sourceNyc'))} <a class="obx-link" href="${escapeHTML(detail.sourceUrl)}" target="_blank" rel="noopener">NYC Open Data</a></div>`
+                : '';
+            const contact = detail && (detail.phone || detail.website) ? `
+                <div class="info-block">
+                    <span class="info-block-title">${escapeHTML(t('detail.contact'))}</span>
+                    ${detail.phone ? `<div style="font-size: 12px;">📞 <a class="obx-link" href="tel:${escapeHTML(detail.phone.replace(/[^0-9+]/g, ''))}" dir="ltr">${escapeHTML(detail.phone)}</a></div>` : ''}
+                    ${detail.website ? `<div style="font-size: 12px;">🔗 <a class="obx-link" href="${escapeHTML(detail.website)}" target="_blank" rel="noopener" dir="ltr">${escapeHTML(detail.website.replace(/^https?:\/\//, ''))}</a></div>` : ''}
+                </div>` : '';
 
             panel.innerHTML = `
                 <div class="resource-card-header">
-                    <span class="res-type-badge">${res.emoji} [ ${res.category.toUpperCase()} RESOURCE ]</span>
-                    <h2 class="res-title">${resName}</h2>
-                    <div class="res-distance">📍 ${res.address}</div>
-                    <div style="font-size: 11px; font-weight: 700; color: var(--text-muted);">Neighborhood: ${res.neighborhood} • <strong>${dist} miles away</strong></div>
-                    <div style="font-size: 12px; font-weight: 700; font-family: var(--font-mono); color: var(--green-accent);">
-                        • ${resStatus}
-                    </div>
+                    <span class="res-type-badge">${escapeHTML(res.emoji)} [ ${escapeHTML(t('detail.badge', { category: t('categories.' + res.category) }))} ]</span>
+                    <h2 class="res-title">${locHTML(res.name)}</h2>
+                    <div class="res-distance">📍 ${escapeHTML(res.address)}</div>
+                    <div style="font-size: 11px; font-weight: 700; color: var(--text-muted);">${escapeHTML(t('detail.neighborhood', { name: res.neighborhood || '—' }))} • <strong>${escapeHTML(t('map.milesAway', { n: fmtNum(dist) }))}</strong></div>
+                    ${status ? `<div style="font-size: 12px; font-weight: 700; font-family: var(--font-mono); color: var(--green-accent);">• ${status}</div>` : ''}
                 </div>
 
                 <div class="ai-summary-box">
-                    <div class="ai-badge">🤖 [ AI Bronx Match Insights ]</div>
-                    <div class="ai-summary-text">${resSummary}</div>
+                    <div class="ai-badge">🤖 ${escapeHTML(t('detail.aiInsights'))}</div>
+                    <div class="ai-summary-text">${locHTML(res.aiSummary)}</div>
                 </div>
 
                 <div class="info-block">
-                    <span class="info-block-title">${dict.servicesProvided}</span>
+                    <span class="info-block-title">${escapeHTML(t('detail.services'))}</span>
                     <div class="tag-cloud">
-                        ${resServices.map(s => `<span class="req-chip">✓ ${s}</span>`).join('')}
+                        ${detail ? services.map(s => `<span class="req-chip">✓ ${escapeHTML(s)}</span>`).join('') : `<span class="obx-muted-note">${escapeHTML(t('common.loading'))}</span>`}
                     </div>
                 </div>
 
                 <div class="info-block">
-                    <span class="info-block-title">${dict.whatYouNeed}</span>
-                    <div class="tag-cloud">
-                        <span class="req-chip">${res.requirements.noID ? '✅ ' + dict.noID : '⚠️ Photo ID Required'}</span>
-                        <span class="req-chip">${res.requirements.noProofIncome ? '✅ ' + dict.noIncome : 'ℹ️ Income Verification'}</span>
-                        <span class="req-chip">${res.requirements.walkIn ? '🚶 ' + dict.walkIn : '📅 Appt Required'}</span>
-                        <span class="req-chip">${res.requirements.spanish ? '🗣️ ' + dict.spanish : '🗣️ English Primary'}</span>
-                    </div>
+                    <span class="info-block-title">${escapeHTML(t('detail.requirements'))}</span>
+                    <div class="tag-cloud">${requirementChips(res.requirements)}</div>
                 </div>
 
                 <div class="info-block">
-                    <span class="info-block-title">${dict.hoursTitle}</span>
-                    <table class="hours-table">
-                        ${Object.entries(res.hours).map(([day, hrs]) => `
-                            <tr><td>${day}</td><td>${hrs}</td></tr>
-                        `).join('')}
-                    </table>
+                    <span class="info-block-title">${escapeHTML(t('detail.hours'))}</span>
+                    ${rows.length ? `<table class="hours-table">
+                        ${rows.map(([day, hrs]) => `<tr><td>${escapeHTML(day)}</td><td>${escapeHTML(hrs)}</td></tr>`).join('')}
+                    </table>` : `<div class="obx-muted-note">${escapeHTML(detail ? t('detail.hoursUnknown') : t('common.loading'))}</div>`}
                 </div>
+                ${contact}
 
                 <div class="action-buttons">
                     <button class="btn-primary-wf" onclick="window.open('${directionsUrl}', '_blank')">
-                        ${dict.getDirections}
+                        ${escapeHTML(t('detail.getDirections'))}
                     </button>
-                    <button class="btn-secondary-wf" onclick="openModal('questionModal')">
-                        ${dict.submitToCenter}
+                    <button class="btn-secondary-wf" onclick="openQuestionModal('${escapeHTML(res.id)}')">
+                        ${escapeHTML(t('detail.contactAsk'))}
                     </button>
+                    ${sourceLine}
                 </div>
             `;
         }
 
-        /* LANGUAGE TRANSLATION SWITCHER */
-        function changeLanguage(langCode) {
-            currentLang = langCode;
-            const langData = translations[langCode] || translations['en'];
-
-            document.getElementById("txtSlogan").innerText = langData.slogan;
-            document.getElementById("txtSubtitle").innerText = langData.subtitle;
-            document.getElementById("navMap").innerText = langData.navMap;
-            document.getElementById("navList").innerText = langData.navList;
-            document.getElementById("btnSubmitQuestion").innerText = langData.askBtn;
-            document.getElementById("lblShortcuts").innerText = langData.shortcuts;
-            document.getElementById("lblFilterTitle").innerText = langData.filterTitle;
-            document.getElementById("lblCategory").innerText = langData.category;
-            document.getElementById("lblRequirements").innerText = langData.reqs;
-            document.getElementById("lblNoID").innerText = langData.noID;
-            document.getElementById("lblNoIncome").innerText = langData.noIncome;
-            document.getElementById("lblWalkIn").innerText = langData.walkIn;
-            document.getElementById("lblSpanish").innerText = langData.spanish;
-            document.getElementById("lblTransit").innerText = langData.transit;
-            document.getElementById("lblDistance").innerText = langData.distance;
-            document.getElementById("lblAIScanner").innerText = langData.scanner;
-            document.getElementById("lblListHeader").innerText = langData.listHeader;
-            document.getElementById("lblListSub").innerText = langData.listSub;
-            document.getElementById("lblSavedHeader").innerText = langData.savedHeader;
-            document.getElementById("lblSavedSub").innerText = langData.savedSub;
-
-            if (langData.categories) {
-                document.getElementById("catLabel_all").innerText = langData.categories.all;
-                document.getElementById("catLabel_food").innerText = langData.categories.food;
-                document.getElementById("catLabel_health").innerText = langData.categories.health;
-                document.getElementById("catLabel_rehab").innerText = langData.categories.rehab;
-                document.getElementById("catLabel_education").innerText = langData.categories.education;
-                document.getElementById("catLabel_jobs").innerText = langData.categories.jobs;
-                document.getElementById("catLabel_clothing").innerText = langData.categories.clothing;
-                document.getElementById("catLabel_community").innerText = langData.categories.community;
+        /* LANGUAGE TRANSLATION SWITCHER ([I18N] loads the language file, re-renders
+           everything, saves the choice) */
+        async function changeLanguage(langCode, opts = {}) {
+            if (!SUPPORTED_LANGS.includes(langCode)) langCode = 'en';
+            try {
+                await loadDict(langCode);
+            } catch (e) {
+                showToast(t('errors.generic'));
+                document.getElementById('languageSelect').value = currentLang;
+                return;
             }
-
+            currentLang = langCode;
+            if (opts.persist !== false) {
+                try { localStorage.setItem(LANG_STORAGE_KEY, langCode); } catch (e) { /* private mode */ }
+                if (currentUser) {
+                    apiFetch('/api/me', { method: 'PATCH', body: { language_preference: langCode } })
+                        .then(d => { currentUser.language_preference = d.user.language_preference; }).catch(() => {});
+                }
+            }
+            applyTranslations();
+            if (leafletMap) {
+                setZoomControl();
+                setDataAttribution();
+                leafletMap.closePopup();
+                filterLocations({ fit: false });   // popups + pin titles in the new language
+            }
             renderResourceDetails(activeSelectedResourceId);
             renderFullListView();
             renderSavedListView();
-            showToast("Language changed to " + langCode.toUpperCase());
+            if (document.getElementById('adminDashboardModal').classList.contains('active')) refreshAdminPanelLanguage();
+            if (!opts.quiet) showToast(t('toasts.langChanged', { lang: t('langNames.' + langCode) }));
         }
 
         /* USER QUESTION SUBMISSION */
-        function submitUserQuestion() {
+        let questionResourceId = null;
+        const LANG_SELECT_VALUE = { en: 'English', es: 'Spanish', vi: 'Vietnamese', zh: 'Chinese', ar: 'Arabic' };
+
+        function openQuestionModal(resourceId) {
+            questionResourceId = resourceId || null;
+            const ctx = document.getElementById('questionContext');
+            const res = resourceId ? resources.find(r => r.id === resourceId) : null;
+            ctx.classList.toggle('obx-hidden', !res);
+            if (res) ctx.innerText = t('question.aboutLocation', { name: loc(res.name) });
+            document.getElementById('questionTopic').value = 'resource';
+            document.getElementById('questionLang').value = LANG_SELECT_VALUE[currentLang] || 'English';
+            loadMyQuestions();
+            openModal('questionModal');
+        }
+
+        /* [QUESTIONS] logged-in users see their own questions and replies */
+        async function loadMyQuestions() {
+            const box = document.getElementById('myQuestionsBox');
+            const list = document.getElementById('myQuestionsList');
+            if (!currentUser) { box.classList.add('obx-hidden'); return; }
+            box.classList.remove('obx-hidden');
+            list.innerHTML = `<div class="obx-muted-note">${escapeHTML(t('common.loading'))}</div>`;
+            try {
+                const items = await apiFetch('/api/my-questions');
+                if (!items.length) {
+                    list.innerHTML = `<div class="obx-muted-note">${escapeHTML(t('question.noMyQuestions'))}</div>`;
+                    return;
+                }
+                list.innerHTML = items.map(q => `
+                    <div class="obx-myq">
+                        <div class="obx-muted-note">${escapeHTML(fmtDateTime(q.created_at))} · ${escapeHTML(t('topics.' + q.topic))} · ${escapeHTML(t('status.' + q.statusCode))}</div>
+                        <div dir="auto">${escapeHTML(q.question)}</div>
+                        ${q.reply ? `<div class="obx-myq-reply"><strong>${escapeHTML(t('question.reply'))}</strong><div dir="auto">${escapeHTML(q.reply)}</div></div>`
+                                  : `<div class="obx-muted-note">${escapeHTML(t('question.awaiting'))}</div>`}
+                    </div>`).join('');
+            } catch (e) {
+                list.innerHTML = `<div class="obx-muted-note">${escapeHTML(errorText(e))}</div>`;
+            }
+        }
+
+        async function submitUserQuestion() {
             const qText = document.getElementById("questionTextInput").value;
             const qPhone = document.getElementById("questionPhoneInput").value;
             const qLang = document.getElementById("questionLang").value;
+            const qTopic = document.getElementById("questionTopic").value;
 
             if (!qText.trim()) {
-                showToast("Please enter a question or request first.");
+                showToast(t('question.emptyToast'));
                 return;
             }
 
-            const newEntry = {
-                timestamp: new Date().toLocaleDateString() + " " + new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}),
-                lang: qLang,
-                question: qText,
-                phone: qPhone || "None Provided",
-                status: "Pending Response"
-            };
-
-            userQuestionsList.push(newEntry);
-
             /* [DB] Store the question in the questions table */
-            apiFetch('/api/questions', { method: 'POST', body: { lang: qLang, question: qText, phone: qPhone } })
-                .then(data => { newEntry.id = data.question.id; })
-                .catch(e => showToast("Could not send question: " + e.message));
+            try {
+                await apiFetch('/api/questions', { method: 'POST', body: {
+                    lang: qLang, question: qText, phone: qPhone, topic: qTopic, resource_id: questionResourceId
+                } });
+            } catch (e) {
+                showToast(t('question.sendFailed', { error: errorText(e) }));
+                return;
+            }
 
-            showToast(qPhone ? "Submitted! Counselor will text " + qPhone : "Question submitted to Bronx team.");
-            
+            showToast(qPhone ? t('question.submittedPhone', { phone: qPhone }) : t('question.submitted'));
+
             document.getElementById("questionTextInput").value = "";
             document.getElementById("questionPhoneInput").value = "";
             closeModal("questionModal");
         }
 
-        /* ADMIN PASSWORD PORTAL */
+        /* =====================================================================
+           [ADMIN] Admin panel. No shared password: a logged-in account with the
+           admin role opens it directly. Counselors get the resource-question
+           queue only. The server checks the role on every request.
+           ===================================================================== */
+        let pendingAdminOpen = false;
+        let adminTab = 'inbox';
+
         function openAdminModal() {
-            /* [DB] Staff who are already logged in go straight to the dashboard */
-            if (currentUser && (currentUser.role === 'admin' || currentUser.role === 'counselor')) {
-                openAdminDashboard();
+            if (!currentUser) {
+                pendingAdminOpen = true;
+                if (loginModeSignup) toggleSignupMode();
+                document.getElementById('loginStaffHint').classList.remove('obx-hidden');
+                openModal("loginModal");
                 return;
             }
-            openModal("adminAuthModal");
-        }
-
-        /* [DB] Load all questions from the database, then show the dashboard */
-        async function openAdminDashboard() {
-            try {
-                userQuestionsList = await apiFetch('/api/questions');
-                renderAdminQuestionsTable();
-                openModal("adminDashboardModal");
-            } catch (e) {
-                showToast(e.message);
+            if (!isStaff(currentUser)) {
+                showToast(t('admin.notAllowed'));
+                return;
             }
+            openAdminDashboard();
         }
 
-        async function verifyAdminPassword() {
-            /* [DB] Real staff login (admin or counselor account) */
-            const email = document.getElementById("adminEmailInput").value;
-            const pass = document.getElementById("adminPasswordInput").value;
+        async function openAdminDashboard() {
+            const isAdmin = currentUser && currentUser.role === 'admin';
+            document.querySelectorAll('#adminDashboardModal [data-admin-only]').forEach(el => el.classList.toggle('obx-hidden', !isAdmin));
+            document.getElementById('adminPanelTitle').setAttribute('data-i18n', isAdmin ? 'admin.title' : 'admin.staffTitle');
+            document.getElementById('adminPanelTitle').textContent = t(isAdmin ? 'admin.title' : 'admin.staffTitle');
+            document.getElementById('adminInboxDesc').textContent = t(isAdmin ? 'admin.inboxDesc' : 'admin.staffInboxDesc');
+            switchAdminTab('inbox');
+            openModal("adminDashboardModal");
+        }
+
+        function switchAdminTab(tab) {
+            adminTab = tab;
+            document.querySelectorAll('#adminTabs .obx-tab').forEach(b => b.classList.toggle('active', b.dataset.tab === tab));
+            ['inbox', 'locations', 'import'].forEach(name => {
+                const el = document.getElementById('adminTab_' + name);
+                el.classList.toggle('obx-hidden', name !== tab);
+                el.style.display = name === tab ? 'flex' : '';
+            });
+            if (tab === 'inbox') loadInbox();
+            if (tab === 'locations') loadAdminLocations(1);
+        }
+
+        function refreshAdminPanelLanguage() {
+            const isAdmin = currentUser && currentUser.role === 'admin';
+            document.getElementById('adminInboxDesc').textContent = t(isAdmin ? 'admin.inboxDesc' : 'admin.staffInboxDesc');
+            if (adminTab === 'inbox') renderAdminQuestionsTable();
+            if (adminTab === 'locations') renderAdminLocations();
+            if (!document.getElementById('locFormBox').classList.contains('obx-hidden')) buildLocationFormExtras(locFormData);
+        }
+
+        /* [ADMIN] Questions inbox: admins -> /api/admin/questions (app + resource questions);
+           counselors -> /api/questions (resource questions only) */
+        async function loadInbox() {
+            const isAdmin = currentUser && currentUser.role === 'admin';
+            const status = document.getElementById('inboxStatus').value;
+            const topic = document.getElementById('inboxTopic').value;
+            const url = isAdmin
+                ? '/api/admin/questions?topic=' + encodeURIComponent(topic) + '&status=' + encodeURIComponent(status)
+                : '/api/questions?status=' + encodeURIComponent(status);
             try {
-                const data = await apiFetch('/api/login', { method: 'POST', body: { email: email, password: pass } });
-                setCurrentUser(data.user);
-                if (data.user.role !== 'admin' && data.user.role !== 'counselor') {
-                    showToast("This account does not have admin access.");
-                    return;
-                }
-                closeModal("adminAuthModal");
-                document.getElementById("adminPasswordInput").value = "";
-                await openAdminDashboard();
-                showToast("Admin portal unlocked");
+                userQuestionsList = await apiFetch(url);
+                renderAdminQuestionsTable();
             } catch (e) {
-                showToast("Incorrect Admin Password.");
+                showToast(errorText(e));
             }
         }
 
@@ -2113,46 +2441,245 @@
             tbody.innerHTML = "";
 
             if(userQuestionsList.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="5" style="text-align:center;">No questions logged yet.</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;">${escapeHTML(t('admin.noQuestions'))}</td></tr>`;
                 return;
             }
 
             userQuestionsList.forEach((q, idx) => {
                 const tr = document.createElement("tr");
+                const res = q.resourceId ? resources.find(r => r.id === q.resourceId) : null;
+                const asker = q.askerName ? `${escapeHTML(q.askerName)}<br><span class="obx-muted-note">${escapeHTML(q.askerEmail)}</span>` : escapeHTML(t('admin.guest'));
                 /* [DB] Questions come from the public, so escape them */
                 tr.innerHTML = `
-                    <td>${escapeHTML(q.timestamp)}</td>
-                    <td>${escapeHTML(q.lang)}</td>
-                    <td>${escapeHTML(q.question)}</td>
-                    <td><strong>${escapeHTML(q.phone)}</strong></td>
-                    <td><button onclick="markQuestionAnswered(${idx})" style="cursor:pointer; font-size:10px; padding:2px 6px;">${q.status}</button></td>
+                    <td>${escapeHTML(fmtDateTime(q.created_at))}<br><span class="obx-muted-note">${asker}</span></td>
+                    <td><span class="obx-badge ${q.topic === 'app' ? 'app' : ''}">${escapeHTML(t('topics.' + q.topic))}</span></td>
+                    <td>${escapeHTML(t('langNames.' + q.langCode))}</td>
+                    <td dir="auto">${escapeHTML(q.question)}${res ? `<div class="obx-muted-note">📍 ${escapeHTML(loc(res.name))}</div>` : ''}</td>
+                    <td><strong dir="ltr">${q.phone && q.phone !== 'None Provided' ? escapeHTML(q.phone) : escapeHTML(t('admin.noPhone'))}</strong></td>
+                    <td style="min-width: 190px;">
+                        <select id="qs_${idx}" aria-label="${escapeHTML(t('admin.colStatus'))}">
+                            ${['pending', 'in_progress', 'answered'].map(s => `<option value="${s}" ${q.statusCode === s ? 'selected' : ''}>${escapeHTML(t('status.' + s))}</option>`).join('')}
+                        </select>
+                        <textarea id="qr_${idx}" rows="2" placeholder="${escapeHTML(t('admin.replyPlaceholder'))}" dir="auto">${escapeHTML(q.reply || '')}</textarea>
+                        <button onclick="saveQuestion(${idx})" style="cursor:pointer; font-size:10px; padding:2px 6px;">${escapeHTML(t('admin.save'))}</button>
+                    </td>
                 `;
                 tbody.appendChild(tr);
             });
         }
 
-        async function markQuestionAnswered(idx) {
+        async function saveQuestion(idx) {
             const q = userQuestionsList[idx];
-            /* [DB] Persist the status change */
-            if (q.id) {
-                try {
-                    await apiFetch('/api/questions/' + encodeURIComponent(q.id), { method: 'PATCH', body: { status: 'answered' } });
-                } catch (e) {
-                    showToast(e.message);
-                    return;
-                }
+            const isAdmin = currentUser && currentUser.role === 'admin';
+            const status = document.getElementById('qs_' + idx).value;
+            const reply = document.getElementById('qr_' + idx).value;
+            const body = { status: status };
+            if (reply !== (q.reply || '')) body.reply = reply;
+            try {
+                const data = await apiFetch((isAdmin ? '/api/admin/questions/' : '/api/questions/') + encodeURIComponent(q.id),
+                                            { method: 'PATCH', body: body });
+                userQuestionsList[idx] = data.question;
+                renderAdminQuestionsTable();
+                showToast(t('admin.savedToast'));
+            } catch (e) {
+                showToast(errorText(e));
             }
-            q.status = "✓ Answered";
-            renderAdminQuestionsTable();
-            showToast("Question marked as answered");
         }
 
-        function clearAllAdminQuestions() {
-            /* [DB] Clears this panel's view only; questions stay in the database
-               (reopen Admin Access to reload them). */
-            userQuestionsList = [];
-            renderAdminQuestionsTable();
-            showToast("All logged questions cleared");
+        /* [ADMIN] Locations list + add/edit form (admins only; enforced by /api/admin/*) */
+        let adminLocPage = 1, adminLocData = { items: [], pages: 1, total: 0 };
+        let locSearchTimer = null;
+        function debouncedLoadLocations() {
+            clearTimeout(locSearchTimer);
+            locSearchTimer = setTimeout(() => loadAdminLocations(1), 300);
+        }
+        async function loadAdminLocations(page) {
+            if (page < 1 || (adminLocData.pages && page > adminLocData.pages && page !== 1)) return;
+            const params = new URLSearchParams({ page: page, per_page: 25 });
+            const q = document.getElementById('locSearch').value.trim();
+            const cat = document.getElementById('locCategory').value;
+            if (q) params.set('q', q);
+            if (cat) params.set('category', cat);
+            if (document.getElementById('locShowHidden').checked) params.set('include_inactive', '1');
+            try {
+                adminLocData = await apiFetch('/api/admin/resources?' + params.toString());
+                adminLocPage = adminLocData.page;
+                renderAdminLocations();
+            } catch (e) {
+                showToast(errorText(e));
+            }
+        }
+        function sourceLabel(src) { return t('admin.source_' + src) !== 'admin.source_' + src ? t('admin.source_' + src) : src; }
+        function renderAdminLocations() {
+            const tbody = document.getElementById('locTableBody');
+            if (!adminLocData.items.length) {
+                tbody.innerHTML = `<tr><td colspan="5" style="text-align:center;">${escapeHTML(t('admin.noLocations'))}</td></tr>`;
+            } else {
+                tbody.innerHTML = adminLocData.items.map((r, i) => `
+                    <tr style="${r.active ? '' : 'opacity: 0.55;'}">
+                        <td>${escapeHTML(r.emoji)} ${escapeHTML(r.name.en || '')}${r.active ? '' : ` <span class="obx-badge">${escapeHTML(t('admin.hidden'))}</span>`}<br><span class="obx-muted-note">${escapeHTML(r.id)}</span></td>
+                        <td>${escapeHTML(t('categories.' + r.category))}</td>
+                        <td>${escapeHTML(r.address)}</td>
+                        <td>${escapeHTML(sourceLabel(r.source))}</td>
+                        <td><button onclick="openLocationForm(${i})" style="cursor:pointer; font-size:10px; padding:2px 6px;">${escapeHTML(t('admin.edit'))}</button></td>
+                    </tr>`).join('');
+            }
+            document.getElementById('locPageInfo').innerText = t('admin.pageInfo', {
+                page: fmtNum(adminLocData.page || 1, 0), pages: fmtNum(Math.max(adminLocData.pages || 1, 1), 0), total: fmtNum(adminLocData.total || 0, 0)
+            });
+            document.getElementById('locPrev').disabled = adminLocPage <= 1;
+            document.getElementById('locNext').disabled = adminLocPage >= (adminLocData.pages || 1);
+        }
+
+        const REQ_KEYS = [['noID', 'filters.noID'], ['noProofIncome', 'filters.noIncome'], ['walkIn', 'filters.walkIn'],
+                          ['spanish', 'filters.spanish'], ['wheelchair', 'admin.reqWheelchair'], ['transit', 'filters.transit']];
+        const OTHER_LANGS = ['es', 'vi', 'zh', 'ar'];
+        let locFormData = null;   // null = new location
+
+        function buildLocationFormExtras(r) {
+            const val = (field, lang) => (r && r[field] && r[field][lang]) || '';
+            document.getElementById('lf_translations').innerHTML = OTHER_LANGS.map(lang => `
+                <div class="wf-form-group"><label>${escapeHTML(t('admin.fNameIn', { lang: t('langNames.' + lang) }))}</label>
+                    <input id="lf_name_${lang}" value="${escapeHTML(val('name', lang))}" dir="auto"></div>
+                <div class="wf-form-group"><label>${escapeHTML(t('admin.fSummaryIn', { lang: t('langNames.' + lang) }))}</label>
+                    <textarea id="lf_summary_${lang}" rows="2" dir="auto">${escapeHTML(val('aiSummary', lang))}</textarea></div>`).join('');
+            const req = (r && r.requirements) || {};
+            document.getElementById('lf_requirements').innerHTML = REQ_KEYS.map(([k, label]) => `
+                <label class="wf-checkbox"><input type="checkbox" id="lf_req_${k}" ${req[k] ? 'checked' : ''}><span>${escapeHTML(t(label))}</span></label>`).join('');
+            const hrs = (r && r.hoursRaw) || {};
+            document.getElementById('lf_hours').innerHTML = DAY_KEYS.map((d, i) => `
+                <div class="wf-form-group"><label for="lf_h_${d}">${escapeHTML(dayName(i))}</label>
+                    <input id="lf_h_${d}" value="${escapeHTML(hrs[d] || '')}" placeholder="09:00-17:00" dir="ltr"></div>`).join('');
+        }
+
+        function openLocationForm(idx) {
+            const r = idx === null ? null : adminLocData.items[idx];
+            locFormData = r;
+            document.getElementById('locFormTitle').innerText = r ? t('admin.editTitle', { name: r.name.en || r.id }) : t('admin.addTitle');
+            const set = (id, v) => { document.getElementById(id).value = v == null ? '' : v; };
+            set('lf_name_en', r && r.name.en);
+            set('lf_category', r ? r.category : 'food');
+            set('lf_address', r && r.address);
+            set('lf_lat', r && r.lat);
+            set('lf_lng', r && r.lng);
+            set('lf_neighborhood', r && r.neighborhood);
+            set('lf_phone', r && r.phone);
+            set('lf_website', r && r.website);
+            set('lf_summary_en', r && r.aiSummary && r.aiSummary.en);
+            set('lf_services_en', r && r.services && r.services.en ? r.services.en.join('\n') : '');
+            document.getElementById('lf_active').checked = r ? r.active : true;
+            document.getElementById('lf_geo_note').innerText = '';
+            buildLocationFormExtras(r);
+            const box = document.getElementById('locFormBox');
+            box.classList.remove('obx-hidden');
+            box.style.display = 'flex';
+            box.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+        function closeLocationForm() {
+            const box = document.getElementById('locFormBox');
+            box.classList.add('obx-hidden');
+            box.style.display = '';
+            locFormData = null;
+        }
+
+        let geocodedForm = false;
+        async function geocodeLocationForm() {
+            const address = document.getElementById('lf_address').value;
+            const note = document.getElementById('lf_geo_note');
+            try {
+                const g = await apiFetch('/api/admin/geocode', { method: 'POST', body: { address: address } });
+                document.getElementById('lf_lat').value = g.lat;
+                document.getElementById('lf_lng').value = g.lng;
+                geocodedForm = true;
+                note.innerText = t('admin.geocoded', { label: g.label });
+            } catch (e) {
+                note.innerText = errorText(e);
+            }
+        }
+
+        function collectLocationForm() {
+            const v = id => document.getElementById(id).value.trim();
+            const name = { en: v('lf_name_en') }, summary = {};
+            if (v('lf_summary_en')) summary.en = v('lf_summary_en');
+            OTHER_LANGS.forEach(lang => {
+                if (v('lf_name_' + lang)) name[lang] = v('lf_name_' + lang);
+                if (v('lf_summary_' + lang)) summary[lang] = v('lf_summary_' + lang);
+            });
+            const services = Object.assign({}, (locFormData && locFormData.services) || {});
+            services.en = v('lf_services_en').split('\n').map(s => s.trim()).filter(Boolean);
+            const requirements = {};
+            REQ_KEYS.forEach(([k]) => { requirements[k] = document.getElementById('lf_req_' + k).checked; });
+            /* nothing ticked = requirements unknown (the page then says "call ahead") */
+            if (!Object.values(requirements).some(Boolean)) Object.keys(requirements).forEach(k => delete requirements[k]);
+            const hours = {};
+            DAY_KEYS.forEach(d => { if (v('lf_h_' + d)) hours[d] = v('lf_h_' + d); });
+            return {
+                name: Object.assign({}, (locFormData && locFormData.name) || {}, name),
+                category: v('lf_category'), address: v('lf_address'), neighborhood: v('lf_neighborhood'),
+                latitude: v('lf_lat'), longitude: v('lf_lng'), phone: v('lf_phone'), website: v('lf_website'),
+                ai_summary: Object.assign({}, (locFormData && locFormData.aiSummary) || {}, summary),
+                services: services, requirements: requirements, hours: hours,
+                active: document.getElementById('lf_active').checked,
+                geo_status: geocodedForm ? 'geocoded' : 'manual'
+            };
+        }
+
+        async function saveLocationForm(force) {
+            const data = collectLocationForm();
+            if (force) data.force = true;
+            const editing = !!locFormData;
+            try {
+                const res = await apiFetch(editing ? '/api/admin/resources/' + encodeURIComponent(locFormData.id) : '/api/admin/resources',
+                                           { method: editing ? 'PATCH' : 'POST', body: data });
+                showToast(t(editing ? 'admin.locUpdated' : 'admin.locCreated'));
+                if (res.warnings && res.warnings.length) showToast(res.warnings.join(' · '));
+                geocodedForm = false;
+                closeLocationForm();
+                delete detailCache[res.resource.id];
+                await loadResourcesFromAPI();
+                filterLocations({ fit: false });
+                renderFullListView();
+                loadAdminLocations(adminLocPage);
+            } catch (e) {
+                if (e.code === 'duplicate' && e.data && e.data.duplicates && e.data.duplicates.length) {
+                    if (confirm(t('admin.duplicateConfirm', { name: e.data.duplicates[0].name, address: e.data.duplicates[0].address }))) {
+                        return saveLocationForm(true);
+                    }
+                    return;
+                }
+                showToast(t('admin.saveFailed', { error: errorText(e) + (e.data && e.data.errors ? ' (' + e.data.errors.join('; ') + ')' : '') }));
+            }
+        }
+
+        /* [ADMIN] Bulk import: check first (dry run), then import the valid rows */
+        function readImportFile(input) {
+            const file = input.files && input.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = () => { document.getElementById('importText').value = reader.result; };
+            reader.readAsText(file);
+        }
+        async function runImport(dryRun) {
+            const text = document.getElementById('importText').value;
+            const summary = document.getElementById('importSummary');
+            try {
+                const res = await apiFetch('/api/admin/resources/import', { method: 'POST', body: { data: text, dry_run: dryRun } });
+                const c = res.counts || {};
+                summary.innerText = t(dryRun ? 'admin.importChecked' : 'admin.importDone', {
+                    ok: fmtNum((c.ok || 0) + (c.inserted || 0), 0), dup: fmtNum(c.duplicate || 0, 0), bad: fmtNum(c.invalid || 0, 0)
+                });
+                document.getElementById('btnImportApply').disabled = !(dryRun && c.ok);
+                document.getElementById('importResult').innerHTML = res.rows.map(r => `
+                    <tr><td>${fmtNum(r.row, 0)}</td><td>${escapeHTML(t('importStatus.' + r.status))}</td>
+                        <td>${escapeHTML(r.name || '')}</td><td>${escapeHTML((r.messages || []).join('; '))}</td></tr>`).join('');
+                if (!dryRun) {
+                    await loadResourcesFromAPI();
+                    filterLocations({ fit: false });
+                    renderFullListView();
+                }
+            } catch (e) {
+                summary.innerText = errorText(e);
+            }
         }
 
         /* [DB] Account login / signup for saving resources to your account */
@@ -2163,19 +2690,28 @@
                 apiFetch('/api/logout', { method: 'POST' }).finally(() => {
                     savedCenterIds = [];
                     setCurrentUser(null);
-                    showToast("Logged out");
+                    closeModal('adminDashboardModal');
+                    showToast(t('login.loggedOut'));
                 });
                 return;
             }
+            pendingAdminOpen = false;
+            document.getElementById('loginStaffHint').classList.add('obx-hidden');
             openModal("loginModal");
+        }
+
+        function updateLoginModalText() {
+            const title = document.getElementById("loginModalTitle");
+            if (!title) return;
+            title.innerText = t(loginModeSignup ? 'login.signupTitle' : 'login.title');
+            document.getElementById("btnLoginSubmit").innerText = t(loginModeSignup ? 'login.submitSignup' : 'login.submitLogin');
+            document.getElementById("btnToggleSignup").innerText = t(loginModeSignup ? 'login.toggleToLogin' : 'login.toggleToSignup');
         }
 
         function toggleSignupMode() {
             loginModeSignup = !loginModeSignup;
             document.getElementById("signupNameGroup").style.display = loginModeSignup ? "flex" : "none";
-            document.getElementById("loginModalTitle").innerText = loginModeSignup ? "👤 Create Account" : "👤 Log In";
-            document.getElementById("btnLoginSubmit").innerText = loginModeSignup ? "Create Account" : "Log In";
-            document.getElementById("btnToggleSignup").innerText = loginModeSignup ? "Have an account? Log in" : "New here? Create an account";
+            updateLoginModalText();
         }
 
         async function submitLogin() {
@@ -2197,9 +2733,14 @@
                 setCurrentUser(data.user);
                 document.getElementById("loginPasswordInput").value = "";
                 closeModal("loginModal");
-                showToast("Welcome, " + data.user.full_name + "!");
+                showToast(t('login.welcome', { name: data.user.full_name }));
+                await applyUserLanguagePreference();
+                if (pendingAdminOpen) {
+                    pendingAdminOpen = false;
+                    if (isStaff(data.user)) openAdminDashboard(); else showToast(t('admin.notAllowed'));
+                }
             } catch (e) {
-                showToast(e.message);
+                showToast(errorText(e));
             }
         }
 
@@ -2210,10 +2751,10 @@
             filterLocations();
         }
 
-        function updateDistanceLabel(val) {
+        function updateDistanceLabel(val, labelOnly) {
             maxDistanceMiles = parseFloat(val);
-            document.getElementById("distanceVal").innerText = `${val} miles radius`;
-            filterLocations();
+            document.getElementById("distanceVal").innerText = t('filters.milesRadius', { n: fmtNum(maxDistanceMiles, 0) });
+            if (!labelOnly) filterLocations();
         }
 
         function resetFilters() {
@@ -2230,25 +2771,27 @@
             document.getElementById("distanceRange").value = 10;
             maxDistanceMiles = 10;
             updateDistanceLabel(10);
-            filterLocations();
-            showToast("Filters reset to default");
+            showToast(t('filters.resetToast'));
         }
 
-        /* AI QUERY SEARCH SIMULATOR */
+        /* AI QUERY SEARCH SIMULATOR ([I18N] keywords come from every language file loaded) */
+        function queryMatches(query, category) {
+            const words = [];
+            [I18N.en, I18N[currentLang]].forEach(d => {
+                const list = d && d.searchKeywords && d.searchKeywords[category];
+                if (list) words.push(...list);
+            });
+            return words.some(w => query.includes(String(w).toLowerCase()));
+        }
         function processAIQuery() {
             const query = document.getElementById("aiQueryInput").value.toLowerCase();
             if (!query.trim()) return;
 
-            if (query.includes('food') || query.includes('pantry') || query.includes('pots')) {
-                toggleCategory(document.querySelectorAll('.cat-btn')[1], 'food');
-            } else if (query.includes('rehab') || query.includes('recovery') || query.includes('samaritan')) {
-                toggleCategory(document.querySelectorAll('.cat-btn')[3], 'rehab');
-            } else if (query.includes('health') || query.includes('lincoln') || query.includes('barnabas')) {
-                toggleCategory(document.querySelectorAll('.cat-btn')[2], 'health');
-            } else if (query.includes('ged') || query.includes('hostos') || query.includes('library')) {
-                toggleCategory(document.querySelectorAll('.cat-btn')[4], 'education');
-            } else if (query.includes('job') || query.includes('bronxworks')) {
-                toggleCategory(document.querySelectorAll('.cat-btn')[5], 'jobs');
+            const order = ['food', 'rehab', 'health', 'education', 'jobs', 'clothing', 'community'];
+            const btnIndex = { food: 1, health: 2, rehab: 3, education: 4, jobs: 5, clothing: 6, community: 7 };
+            const match = order.find(c => queryMatches(query, c));
+            if (match) {
+                toggleCategory(document.querySelectorAll('.cat-btn')[btnIndex[match]], match);
             } else {
                 filterLocations();
             }
@@ -2260,7 +2803,7 @@
                 results_count: getFilteredResources().length
             } }).catch(() => {});
 
-            showToast("AI Search processed for: " + query);
+            showToast(t('search.processed', { query: query }));
         }
 
         function applySampleQuery(text) {
